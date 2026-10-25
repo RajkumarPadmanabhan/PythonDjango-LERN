@@ -1,0 +1,42 @@
+{% extends "tasks/base.html" %}
+{% block title %}Your tasks{% endblock %}
+{% block content %}
+  <h1>Your tasks</h1>
+  <form method="post" class="composer">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <p>
+      <label for="{{ form.title.id_for_label }}">Title</label>
+      {{ form.title }}
+      {{ form.title.errors }}
+    </p>
+    <p>
+      <label for="{{ form.detail.id_for_label }}">Detail</label>
+      {{ form.detail }}
+      {{ form.detail.errors }}
+    </p>
+    <button type="submit">Add task</button>
+  </form>
+  <ul class="tasks">
+    {% for task in tasks %}
+      <li class="{% if task.done %}done{% endif %}">
+        <div>
+          <strong>{{ task.title }}</strong>
+          {% if task.detail %}<p>{{ task.detail|linebreaksbr }}</p>{% endif %}
+        </div>
+        <div class="actions">
+          <form method="post" action="{% url 'task-toggle' task.pk %}">
+            {% csrf_token %}
+            <button type="submit">{% if task.done %}Reopen{% else %}Done{% endif %}</button>
+          </form>
+          <form method="post" action="{% url 'task-delete' task.pk %}">
+            {% csrf_token %}
+            <button type="submit">Delete</button>
+          </form>
+        </div>
+      </li>
+    {% empty %}
+      <li class="empty">No tasks yet. Add the first one.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}
