@@ -4,6 +4,7 @@
   const TRACKS = [
     ["python", "Python"],
     ["django", "Django"],
+    ["project", "Projects"],
     ["reference", "Reference"],
     ["lab", "Labs"],
   ];
@@ -414,6 +415,7 @@
     const minutes = lessons.reduce((sum, lesson) => sum + lesson.minutes, 0);
     const pythonCount = lessons.filter((lesson) => lesson.track === "python").length;
     const djangoCount = lessons.filter((lesson) => lesson.track === "django").length;
+    const projectCount = lessons.filter((lesson) => lesson.track === "project").length;
     const lastId = localStorage.getItem("pathline-last");
     const last = byId.get(lastId);
     const first = lessons.find((lesson) => lesson.track === "python");
@@ -430,13 +432,14 @@
           <li><strong>${lessons.length}</strong><span>lessons, labs, and references</span></li>
           <li><strong>${pythonCount}</strong><span>Python lessons</span></li>
           <li><strong>${djangoCount}</strong><span>Django lessons</span></li>
+          <li><strong>${projectCount}</strong><span>projects, beginner to pro</span></li>
           <li><strong>${Math.round(minutes / 60)}</strong><span>hours if you read straight through</span></li>
         </ul>
       </section>
       <section class="grid-3">
         <article class="card"><h3>1. Read it in order</h3><p>The sidebar is the syllabus. Finish a lesson, mark it done, and open the next one. Search when you need a keyword later.</p></article>
         <article class="card"><h3>2. Run the Python</h3><p>Blocks labeled Python have a Run button. They execute in your browser. Fragments and Django code are for your editor, where the full project lives.</p></article>
-        <article class="card"><h3>3. Do the labs</h3><p>The contact book is pure Python. The task board is a real Django 6.1 project in <code>labs/taskboard</code>. Type it, then run it.</p></article>
+        <article class="card"><h3>3. Build the projects</h3><p>The Projects track is a ladder: guessing games, then files and tests, then Django sites, then a team app with an API and a deploy checklist. Finished Python programs live in <code>labs/projects</code>.</p></article>
       </section>
       <h2 class="section-title">How the course is covered</h2>
       <section class="grid-2">

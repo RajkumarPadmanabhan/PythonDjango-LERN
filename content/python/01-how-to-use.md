@@ -44,7 +44,11 @@ You will meet every Python keyword and soft keyword, the data model (names, obje
 
 Python's standard library has more modules than a course can narrate one by one. The standard-library map names them and says what each is for. The deep lessons teach the ones you will use while building software. Django's official reference remains the spec for every setting and every obscure contrib app; this course teaches the ones you must understand and gives you a catalog so you know the rest exist.
 
-## Two projects you will finish
+## Projects, then two labs you can run today
+
+The Projects track in the sidebar is the build ladder: beginner programs, intermediate file and test projects, beginner Django sites, and a professional team app with an API. Do those after the matching lessons, or when you want a break from reading.
+
+Two finished labs are also in the repository:
 
 - `labs/contact_book.py` is a command-line address book. It uses functions, dictionaries, files, and exceptions.
 - `labs/taskboard/` is a Django project: accounts, a task model, forms, templates, the admin, and tests.
