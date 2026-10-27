@@ -673,6 +673,451 @@ window.PATHLINE_LESSONS = [
     "source": "content/labs/02-taskboard.md"
   },
   {
+    "id": "logic-how",
+    "track": "practice",
+    "level": "Beginner",
+    "module": "Logic building",
+    "title": "How logic is built",
+    "minutes": 16,
+    "keywords": [
+      "sequence",
+      "decision",
+      "loop",
+      "logic",
+      "steps"
+    ],
+    "summary": "Every program is three moves. Do the next step, choose, or repeat. Name those moves before you write code.",
+    "md": "A program does not \"think.\" It follows steps you wrote. Logic building is the skill of turning a sentence into those steps.\n\nThere are only three moves:\n\n1. **Sequence.** Do this, then that, then the next thing.\n2. **Decision.** If a test is true, do one thing. Otherwise do another.\n3. **Repetition.** Do a step again until a test says stop.\n\nBigger programs are these three moves stacked. A Django view is the same shape: read the request, decide, maybe loop over rows, then respond.\n\n## A sentence, then the moves\n\nSentence: \"A year is a leap year when it is divisible by 4, except years divisible by 100, unless they are also divisible by 400.\"\n\nMoves:\n\n1. If the year divides by 400, it is a leap year. Stop.\n2. If the year divides by 100, it is not. Stop.\n3. If the year divides by 4, it is a leap year.\n4. Otherwise it is not.\n\nThe order is the logic. Checking \"divides by 4\" first would mark the year 1900 as a leap year, and 1900 is not.\n\n```python\ndef is_leap(year):\n    if year % 400 == 0:\n        return True\n    if year % 100 == 0:\n        return False\n    return year % 4 == 0\n\nprint(is_leap(2024), is_leap(1900), is_leap(2000))\n```\n\n:::why\n`%` is the remainder. A remainder of 0 means the number divides evenly. Returning as soon as you know the answer is a decision that stops the rest of the tests. That is why 2000 never reaches the `% 4` line: it already returned on `% 400`.\n:::\n\n:::watch\nWriting `if year % 4 == 0 and year % 100 != 0 or year % 400 == 0` can be correct, but `and` and `or` bind in an order that is easy to get wrong. Separate `if` lines match the sentence and are easier to trace.\n:::\n\n:::quiz\nWhy is 1900 not a leap year even though 1900 % 4 == 0?\n+ It is divisible by 100 and not by 400, and that test is checked first\n- Every year divisible by 4 is a leap year\n- 1900 is too far in the past for the % operator\nbecause: The century exception is a decision that must run before the plain \"divisible by 4\" rule.\n:::\n",
+    "source": "content/practice/00-logic-how.md"
+  },
+  {
+    "id": "logic-inputs",
+    "track": "practice",
+    "level": "Beginner",
+    "module": "Logic building",
+    "title": "Name the inputs and the output",
+    "minutes": 14,
+    "keywords": [
+      "input",
+      "output",
+      "example",
+      "spec",
+      "logic"
+    ],
+    "summary": "Before any code, write what goes in, what comes out, and three examples. One of the examples should be awkward.",
+    "md": "Most stuck beginners start typing before they know what \"done\" looks like. A logic problem becomes a function with a known input and a known output.\n\nWrite four lines on paper, or in a comment:\n\n1. **Name.** What question am I answering?\n2. **Input.** What values arrive, and what type is each?\n3. **Output.** What do I return? A number, a list, a yes/no, a message?\n4. **Examples.** At least three. Include an empty or tiny case.\n\n## Worked spec\n\nQuestion: keep the words longer than 3 letters.\n\n| Input | Output |\n| --- | --- |\n| `\"a cat sat\"` | `[\"cat\", \"sat\"]` — \"a\" is too short |\n| `\"\"` | `[]` |\n| `\"four five\"` | `[\"four\", \"five\"]` |\n\nNow the code is a translation of the table, not a guess.\n\n```python\ndef long_words(text):\n    words = text.split()\n    kept = []\n    for word in words:\n        if len(word) > 3:\n            kept.append(word)\n    return kept\n\nprint(long_words(\"a cat sat\"))\nprint(long_words(\"\"))\nprint(long_words(\"four five\"))\n```\n\n:::why\n`split()` with no argument splits on any whitespace and drops empty pieces, so `\"\"` becomes `[]` and the loop body never runs. Returning `kept` means the caller can test the function without looking at printed text.\n:::\n\n:::try\nAdd a fourth example before you change the function: `\"the\"` should return `[]` because 3 is not greater than 3. Then change the test to `>= 3` and predict the new results for all four examples.\n:::\n\n:::solution\n`\"the\"` has length 3, so `> 3` rejects it. After you switch to `>= 3`, `\"a cat sat\"` returns `[\"cat\", \"sat\"]` still, `\"\"` returns `[]`, `\"four five\"` is unchanged, and `\"the\"` returns `[\"the\"]`.\n:::\n\n:::quiz\nWhat belongs in the spec before you write the loop?\n+ The inputs, the output, and examples that include an empty case\n- The name of the Python file\n- A list of every keyword in the language\nbecause: Examples tell you what the loop must keep and what it must ignore. Keywords are tools you pick after the spec is clear.\n:::\n",
+    "source": "content/practice/01-logic-inputs.md"
+  },
+  {
+    "id": "logic-trace",
+    "track": "practice",
+    "level": "Beginner",
+    "module": "Logic building",
+    "title": "Trace every name by hand",
+    "minutes": 16,
+    "keywords": [
+      "trace",
+      "variable",
+      "loop",
+      "off-by-one",
+      "debug"
+    ],
+    "summary": "Write a row each time a name changes. If your row and the program disagree, the bug is in the step you just wrote.",
+    "md": "Tracing is pretending to be Python, slowly. You keep a table. Each name is a column. Each time a name changes, you write a new row.\n\n```python\ndef total(nums):\n    result = 0\n    for num in nums:\n        result = result + num\n    return result\n\nprint(total([4, 1, 7]))\n```\n\n| step | num | result |\n| --- | --- | --- |\n| start |  | 0 |\n| first item | 4 | 4 |\n| second | 1 | 5 |\n| third | 7 | 12 |\n| return |  | 12 |\n\nIf you cannot fill the table, you do not understand the code yet. That is useful. Stop and name the step you cannot fill.\n\n## The usual off-by-one\n\n```python\ndef count_up(n):\n    i = 1\n    while i <= n:\n        print(i)\n        i = i + 1\n\ncount_up(3)\n```\n\n`i <= n` prints 1, 2, 3. `i < n` would stop before 3. `range(1, n)` also stops before `n`, because the stop value is excluded. `range(1, n + 1)` matches the `while` above.\n\n:::why\nThe loop condition is checked before the body. When `i` becomes 4, `4 <= 3` is false, so `print` does not run. Forgetting to change `i` makes the condition true forever.\n:::\n\n:::watch\nStarting a total at 1 instead of 0 adds a phantom item. Starting a count at 1 counts an item that never arrived. Empty input should return 0 for a sum and 0 for a count. Trace `[]` as its own row: the loop body never runs, so the start value is the answer.\n:::\n\n:::try\nTrace `total([])` and `total([5])`. Write the rows before you run anything.\n:::\n\n:::solution\n`total([])` has one row: `result` is 0, the loop does not run, return 0. `total([5])` goes 0, then `num` is 5 and `result` is 5. One item is not a special case if your start value is the identity for the operation: 0 for sums, 1 for products, `[]` for lists you build.\n:::\n",
+    "source": "content/practice/02-logic-trace.md"
+  },
+  {
+    "id": "logic-decisions",
+    "track": "practice",
+    "level": "Beginner",
+    "module": "Logic building",
+    "title": "Decisions without a tangle",
+    "minutes": 16,
+    "keywords": [
+      "if",
+      "elif",
+      "guard",
+      "order",
+      "decision"
+    ],
+    "summary": "Put the most specific test first. Return early when the answer is already known. Deep nesting usually means the order is wrong.",
+    "md": "A decision is a question with two answers. Chains of `elif` are several questions where only the first true one counts.\n\n```python\ndef ticket_price(age):\n    if age < 0:\n        raise ValueError(\"age cannot be negative\")\n    if age < 5:\n        return 0\n    if age < 18:\n        return 8\n    if age < 65:\n        return 15\n    return 10\n\nprint(ticket_price(3), ticket_price(16), ticket_price(40), ticket_price(70))\n```\n\nAge 16 is less than 18 and also less than 65. The `< 18` test is first, so the price is 8. Swap those two tests and every child pays the adult price.\n\n## Guard, then the main path\n\nA guard is a decision that handles the bad or boring case and leaves. The rest of the function can assume the happy path.\n\n```python\ndef label(name):\n    cleaned = name.strip()\n    if not cleaned:\n        return \"anonymous\"\n    return cleaned.title()\n\nprint(label(\"  ada \"), label(\"   \"))\n```\n\n:::why\nOnce the empty name has returned, the last line does not need an `else`. The reader sees the normal result at the bottom, which is where they look.\n:::\n\n:::watch\nNesting a new `if` inside every previous `if` makes a staircase. Each extra indent is a question the reader must remember. Prefer a guard that returns, or an `elif` chain on one subject. Nest only when the inner question is meaningless unless the outer one is true.\n:::\n\n:::quiz\nAn age of 10 matches both `age < 18` and `age < 65`. Which price is used?\n+ The price on the first true test\n- The price on the last true test\n- Python averages the matching prices\nbecause: if / elif runs one branch. Later tests are not asked after a match.\n:::\n",
+    "source": "content/practice/03-logic-decisions.md"
+  },
+  {
+    "id": "logic-loops",
+    "track": "practice",
+    "level": "Beginner",
+    "module": "Logic building",
+    "title": "The four jobs of a loop",
+    "minutes": 18,
+    "keywords": [
+      "loop",
+      "count",
+      "sum",
+      "find",
+      "filter"
+    ],
+    "summary": "A loop counts, totals, finds one item, or keeps many. Give each loop one job.",
+    "md": "When a loop feels confusing, name its job. Almost every beginner loop is one of these four.\n\n| Job | Start with | Each step | Stop with |\n| --- | --- | --- | --- |\n| Count | `0` | add 1 when the test passes | the count |\n| Total | `0` | add the value | the total |\n| Find | nothing yet | return when you see it | the item, or say it is missing |\n| Keep | `[]` | append when the test passes | the new list |\n\n```python\ndef evens(nums):\n    kept = []\n    for num in nums:\n        if num % 2 == 0:\n            kept.append(num)\n    return kept\n\ndef first_even(nums):\n    for num in nums:\n        if num % 2 == 0:\n            return num\n    return None\n\nprint(evens([1, 2, 3, 4]))\nprint(first_even([1, 2, 3, 4]))\n```\n\n`evens` is a keep. `first_even` is a find. Mixing them — appending and also returning inside the same loop — usually means you have not chosen the job.\n\n:::why\nThe start value is the answer for an empty list. A keep starts at `[]`, so an empty input returns `[]`. A find has nothing to return, so after the loop you return `None` or raise. Do not return `0` for \"not found\" if `0` can be a real item.\n:::\n\n:::tip\nSay the job out loud before you type `for`. \"I am keeping.\" Then the only line inside the `if` is `kept.append(...)`.\n:::\n\n:::quiz\nYou need the first negative number in a list, or None when there is none. Which job is that?\n+ Find\n- Keep\n- Total\nbecause: You stop at one match and you need a way to say the match never came. That is a find, not a list of every match.\n:::\n",
+    "source": "content/practice/04-logic-loops.md"
+  },
+  {
+    "id": "logic-collections",
+    "track": "practice",
+    "level": "Intermediate",
+    "module": "Logic building",
+    "title": "Pick the collection that matches the question",
+    "minutes": 16,
+    "keywords": [
+      "list",
+      "set",
+      "dict",
+      "lookup",
+      "membership"
+    ],
+    "summary": "A list remembers order. A set answers \"have I seen this?\" A dict answers \"what is stored under this key?",
+    "md": "Choosing the wrong box makes the logic longer. Match the question.\n\n| Question | Use |\n| --- | --- |\n| What is the third one? | list |\n| Have I already seen this value? | set |\n| What value is stored for this key? | dict |\n| How many times did each value appear? | dict of counts |\n\n```python\ndef counts(text):\n    tally = {}\n    for ch in text.casefold():\n        if not ch.isalpha():\n            continue\n        tally[ch] = tally.get(ch, 0) + 1\n    return tally\n\nprint(counts(\"Ada, ada\"))\n```\n\n`get(ch, 0)` is the logic \"zero if this letter is new.\" Then add one. A list of letters would make you scan the whole list for every character.\n\n:::why\nA set or dict lookup does not walk every stored item in the way a beginner loop does. \"Is this key present?\" is the question those types are built to answer. A list is the right tool when position and duplicates matter.\n:::\n\n:::watch\nA set forgets order and duplicates. If the problem says \"in the order they first appeared,\" a set alone is the wrong final answer. Keep a list for the order and a set for the \"already seen\" test.\n:::\n\n```python\ndef unique_in_order(items):\n    seen = set()\n    ordered = []\n    for item in items:\n        if item in seen:\n            continue\n        seen.add(item)\n        ordered.append(item)\n    return ordered\n\nprint(unique_in_order([\"b\", \"a\", \"b\", \"c\", \"a\"]))\n```\n",
+    "source": "content/practice/05-logic-collections.md"
+  },
+  {
+    "id": "logic-functions",
+    "track": "practice",
+    "level": "Intermediate",
+    "module": "Logic building",
+    "title": "Split the problem into functions",
+    "minutes": 16,
+    "keywords": [
+      "function",
+      "step",
+      "pure",
+      "decompose"
+    ],
+    "summary": "One function, one job. The top function should read like the sentence you started with.",
+    "md": "When a problem has two sentences, it wants two functions. The top function calls them in order. Each small function is easy to trace because it has one job.\n\nSentence: \"Read a score written as text. Reject blanks and words. Then turn the number into a pass or fail at 50.\"\n\n```python\ndef parse_score(text):\n    cleaned = text.strip()\n    if not cleaned:\n        raise ValueError(\"score is blank\")\n    return int(cleaned)\n\ndef passed(score):\n    return score >= 50\n\ndef report(text):\n    score = parse_score(text)\n    if passed(score):\n        return f\"{score}: pass\"\n    return f\"{score}: fail\"\n\nprint(report(\" 49 \"))\nprint(report(\"50\"))\n```\n\n`report` reads like the sentence. `parse_score` does not know about pass marks. `passed` does not know about text.\n\n:::why\nA function that both parses and decides is hard to test. You cannot check the pass rule without also feeding it strings. Splitting lets you test `passed(49)` and `passed(50)` with plain numbers, and test `parse_score(\" 49 \")` on its own.\n:::\n\n:::try\n`report(\"nope\")` raises `ValueError` from `int`. Catch that in `report` and return `\"not a number\"` without changing `passed`.\n:::\n\n:::solution\nWrap only the parse:\n\n```python\ndef parse_score(text):\n    cleaned = text.strip()\n    if not cleaned:\n        raise ValueError(\"score is blank\")\n    return int(cleaned)\n\ndef passed(score):\n    return score >= 50\n\ndef report(text):\n    try:\n        score = parse_score(text)\n    except ValueError:\n        return \"not a number\"\n    if passed(score):\n        return f\"{score}: pass\"\n    return f\"{score}: fail\"\n\nprint(report(\"49\"))\nprint(report(\"nope\"))\nprint(report(\"  \"))\n```\n\n`parse_score(\"\")` raises your blank message, which is also a `ValueError`, so blanks and words both become `\"not a number\"` with this handler. If blanks should say something else, catch them before calling `int`.\n:::\n",
+    "source": "content/practice/06-logic-functions.md"
+  },
+  {
+    "id": "logic-edges",
+    "track": "practice",
+    "level": "Intermediate",
+    "module": "Logic building",
+    "title": "The cases that break beginners",
+    "minutes": 16,
+    "keywords": [
+      "edge case",
+      "empty",
+      "none",
+      "duplicate",
+      "negative"
+    ],
+    "summary": "Empty, one item, duplicates, negatives, and None are part of the problem. Write them as examples before the happy path works.",
+    "md": "A solution that works on `[1, 2, 3]` and fails on `[]` is unfinished. These cases show up in real data: a new user has no tasks, a form field is blank, two people share a name.\n\n| Case | Question to ask |\n| --- | --- |\n| Empty | What is the answer when there is nothing to loop over? |\n| One item | Does \"second\" or \"previous\" exist? |\n| Duplicates | Should both stay, or only the first? |\n| Negative or zero | Is it valid input or a bug? |\n| `None` | Did the caller mean \"missing,\" and is that different from 0 or `\"\"`? |\n\n```python\ndef max_or_none(nums):\n    if not nums:\n        return None\n    best = nums[0]\n    for num in nums[1:]:\n        if num > best:\n            best = num\n    return best\n\nprint(max_or_none([]), max_or_none([4]), max_or_none([3, 3, 1]))\n```\n\nStarting `best` at 0 is wrong for a list of negatives: `[-5, -1]` would return 0, which is not in the list. Starting at the first item fixes that, and the empty check happens before you touch index 0.\n\n:::why\n`None` means \"there is no maximum,\" which is different from a maximum of 0. Callers test it with `is None`. If you returned 0 for an empty list, a caller could not tell \"no data\" from \"the max really is 0.\"\n:::\n\n:::watch\n`if not nums` is true for `[]`, `\"\"`, `0`, and `None`. That is handy at the start of a function that should reject all of those. It is the wrong test when `0` is a legal number. Use `nums is None` when zero must survive.\n:::\n",
+    "source": "content/practice/07-logic-edges.md"
+  },
+  {
+    "id": "logic-indexes",
+    "track": "practice",
+    "level": "Intermediate",
+    "module": "Logic building",
+    "title": "Index logic, from both ends",
+    "minutes": 16,
+    "keywords": [
+      "index",
+      "palindrome",
+      "two pointers",
+      "slice"
+    ],
+    "summary": "An index is a position. Moving one index from each end is how you compare a sequence without building a reversed copy first.",
+    "md": "`text[0]` is the first character. `text[-1]` is the last. A loop that only counts upward sees the sequence from the left. Some questions need both ends at once.\n\nIs it a palindrome if you ignore spaces and case?\n\n```python\ndef is_palindrome(text):\n    chars = [ch.casefold() for ch in text if ch.isalnum()]\n    left = 0\n    right = len(chars) - 1\n    while left < right:\n        if chars[left] != chars[right]:\n            return False\n        left += 1\n        right -= 1\n    return True\n\nprint(is_palindrome(\"A man, a plan, a canal: Panama\"))\nprint(is_palindrome(\"nope\"))\n```\n\n`left < right` stops when the indexes meet or cross. A middle character in an odd-length list is never compared with itself, which is fine: it matches itself.\n\n:::why\nYou clean the text once, then move. If you compared raw characters, the comma and the spaces would make a real palindrome look false. Cleaning is its own step. The loop's only job is \"do these two positions match?\"\n:::\n\n:::watch\n`right = len(chars)` points one past the end. The last valid index is `len(chars) - 1`. Using the length as an index raises `IndexError` on the first comparison.\n:::\n\nThe same two-index shape finds a pair in a **sorted** list that adds up to a target: if the sum is too small, move `left` rightward; if it is too big, move `right` leftward. It only works because the list is sorted. On an unsorted list, use a dict (see the patterns lesson).\n",
+    "source": "content/practice/08-logic-indexes.md"
+  },
+  {
+    "id": "logic-nested",
+    "track": "practice",
+    "level": "Intermediate",
+    "module": "Logic building",
+    "title": "Nested loops, and the lookup that replaces one",
+    "minutes": 18,
+    "keywords": [
+      "nested loop",
+      "pair",
+      "lookup",
+      "set"
+    ],
+    "summary": "A loop inside a loop compares every item with every other item. A set or dict often answers the same question in one pass.",
+    "md": "A nested loop is the honest shape of \"compare each item with the others.\" It is also slow once the list is long, and it is easy to compare an item with itself.\n\n```python\ndef has_pair_sum(nums, target):\n    for i, left in enumerate(nums):\n        for right in nums[i + 1:]:\n            if left + right == target:\n                return True\n    return False\n\nprint(has_pair_sum([2, 7, 11], 9))\nprint(has_pair_sum([1, 2, 3], 10))\n```\n\n`nums[i + 1:]` skips the item itself and the pairs already checked. That is the logic. The inner loop is still a scan.\n\n## One pass with a set\n\nAsk a different question: \"I have `left`. Have I already seen `target - left`?\"\n\n```python\ndef has_pair_sum_fast(nums, target):\n    seen = set()\n    for num in nums:\n        if target - num in seen:\n            return True\n        seen.add(num)\n    return False\n\nprint(has_pair_sum_fast([2, 7, 11], 9))\n```\n\nAdd the number **after** the test. If you add it first, a value can pair with itself. `target` 8 and a single `4` would look like a pair even though 4 appears once.\n\n:::why\nThe nested version tries every pair. The set version remembers what it has already walked past. Both are correct for this yes/no question. The set version is the one to reach for when the inner loop is only asking \"have I seen this?\"\n:::\n\n:::tip\nDraw the nested version first if the problem is new. Replace the inner loop only when you can name the lookup. Replacing it too early hides the logic.\n:::\n",
+    "source": "content/practice/09-logic-nested.md"
+  },
+  {
+    "id": "logic-recursion",
+    "track": "practice",
+    "level": "Advanced",
+    "module": "Logic building",
+    "title": "Recursion is a smaller copy of the same problem",
+    "minutes": 16,
+    "keywords": [
+      "recursion",
+      "base case",
+      "call stack"
+    ],
+    "summary": "A recursive function solves a smaller input and combines the answer. It must have a case that does not call itself.",
+    "md": "Recursion is a decision plus a smaller problem. You need two parts:\n\n1. **Base case.** The input is so small the answer is obvious. Do not call the function again.\n2. **Recursive case.** Use the answer for a smaller input to build this answer.\n\n```python\ndef total(nums):\n    if not nums:\n        return 0\n    return nums[0] + total(nums[1:])\n\nprint(total([4, 1, 7]))\n```\n\n`total([4, 1, 7])` is `4 + total([1, 7])`. That is `4 + 1 + total([7])`. That is `4 + 1 + 7 + total([])`. The empty list returns 0 and the additions finish on the way back.\n\nThe same job as a loop is usually clearer:\n\n```python\ndef total_loop(nums):\n    result = 0\n    for num in nums:\n        result += num\n    return result\n```\n\nUse recursion when the data is naturally nested, such as a tree of folders or comments that have replies. Use a loop for a flat list.\n\n:::why\nEach call waits for the smaller call. Python stores those waiting calls on a stack. There is no automatic tail-call removal, so a recursive loop over a huge list can hit `RecursionError`. The default limit is high enough for trees of modest depth and too low for \"walk a million numbers.\"\n:::\n\n:::watch\nA missing base case never returns. `total` without the empty check calls `total([])`, then tries `nums[0]` and raises `IndexError`. Forgetting to shrink the input (`total(nums)` instead of `total(nums[1:])`) recurses until the stack limit.\n:::\n\n:::quiz\nWhat must a recursive function have?\n+ A base case that returns without calling itself, and a call on a smaller input\n- A while loop inside the recursive call\n- A global variable to store the answer\nbecause: The base case is what stops the calls. The smaller input is what moves toward that case.\n:::\n",
+    "source": "content/practice/10-logic-recursion.md"
+  },
+  {
+    "id": "logic-state",
+    "track": "practice",
+    "level": "Advanced",
+    "module": "Logic building",
+    "title": "Remember state on purpose",
+    "minutes": 16,
+    "keywords": [
+      "state",
+      "running total",
+      "toggle",
+      "state machine"
+    ],
+    "summary": "State is a name that remembers what happened so far. Change it in one place, and decide the next step from its current value.",
+    "md": "A running total is state. A \"have I seen a space yet\" flag is state. The logic is: look at the current state and the next input, then write the next state.\n\n```python\ndef running_max(nums):\n    best = None\n    history = []\n    for num in nums:\n        if best is None or num > best:\n            best = num\n        history.append(best)\n    return history\n\nprint(running_max([3, 1, 4, 2]))\n```\n\n`best` is the memory. `history` is the list of what that memory was after each step. `[3, 3, 4, 4]` means \"the max so far,\" not \"the list sorted.\"\n\n## A tiny machine\n\nSome text is \"inside a word\" or \"between words.\" That is two states.\n\n```python\ndef word_count(text):\n    in_word = False\n    count = 0\n    for ch in text:\n        if ch.isspace():\n            in_word = False\n        elif not in_word:\n            count += 1\n            in_word = True\n    return count\n\nprint(word_count(\"ada  lovelace\"))\nprint(word_count(\"   \"))\n```\n\nYou count only on the step that **enters** a word. Spaces only flip the flag off. Extra spaces do not create extra words.\n\n:::why\nIf you counted every non-space character you would count letters, not words. The flag is what distinguishes \"first letter of a word\" from \"another letter of the same word.\"\n:::\n\n:::tip\nName the states with words you could say: `in_word`, `seen_dot`, `depth`. A pile of booleans named `flag1` and `flag2` means the states are not clear yet.\n:::\n\nDjango uses the same idea. `request.user.is_authenticated` is state about the session. `task.done` is state about one row. A view reads that state, decides, and writes a new value. It should not keep a second copy of \"done\" in a global variable.\n",
+    "source": "content/practice/11-logic-state.md"
+  },
+  {
+    "id": "logic-patterns",
+    "track": "practice",
+    "level": "Advanced",
+    "module": "Logic building",
+    "title": "Patterns you will meet again",
+    "minutes": 20,
+    "keywords": [
+      "frequency",
+      "two pointers",
+      "sliding window",
+      "stack"
+    ],
+    "summary": "Frequency maps, two indexes on sorted data, a sliding window, and a stack. Learn the shape, then match it to the sentence.",
+    "md": "These are not tricks to memorize as magic. Each one is a loop job you already know, with a specific kind of memory.\n\n## Frequency map\n\n\"Which value appears most?\" is a dict of counts, then a scan of that dict.\n\n```python\ndef most_common(items):\n    tally = {}\n    for item in items:\n        tally[item] = tally.get(item, 0) + 1\n    best_item = None\n    best_count = -1\n    for item, count in tally.items():\n        if count > best_count:\n            best_item = item\n            best_count = count\n    return best_item\n\nprint(most_common([\"a\", \"b\", \"a\", \"c\", \"a\", \"b\"]))\n```\n\nTies keep the first winner, because `>` does not replace an equal count.\n\n## Two indexes, only if the data is sorted\n\n```python\ndef pair_sorted(nums, target):\n    left = 0\n    right = len(nums) - 1\n    while left < right:\n        total = nums[left] + nums[right]\n        if total == target:\n            return nums[left], nums[right]\n        if total < target:\n            left += 1\n        else:\n            right -= 1\n    return None\n\nprint(pair_sorted([1, 2, 4, 7, 11], 13))\n```\n\nMoving `left` up increases the sum. Moving `right` down decreases it. That story is false if the list is not sorted.\n\n## Sliding window\n\n\"Best sum of any `k` neighbors\" reuses the previous sum. Drop the item that fell out of the window, add the item that entered.\n\n```python\ndef max_window(nums, k):\n    if k <= 0 or k > len(nums):\n        raise ValueError(\"k must be between 1 and the length\")\n    window = sum(nums[:k])\n    best = window\n    for i in range(k, len(nums)):\n        window += nums[i] - nums[i - k]\n        if window > best:\n            best = window\n    return best\n\nprint(max_window([2, 1, 5, 1, 3], 2))\n```\n\n## Stack\n\n\"Does this closer match the most recent opener?\" is a stack. The most recent unmatched opener is the last item you append.\n\n```python\ndef balanced(text):\n    pairs = {\")\": \"(\", \"]\": \"[\", \"}\": \"{\"}\n    stack = []\n    for ch in text:\n        if ch in \"([{\":\n            stack.append(ch)\n        elif ch in pairs:\n            if not stack or stack.pop() != pairs[ch]:\n                return False\n    return not stack\n\nprint(balanced(\"([])\"), balanced(\"([)]\"), balanced(\"(\"))\n```\n\n:::why\n`([)]` fails because the most recent opener is `[`, and the next closer is `)`. A counter of \"how many open\" cannot see that mismatch. The stack remembers the order.\n:::\n",
+    "source": "content/practice/12-logic-patterns.md"
+  },
+  {
+    "id": "logic-django",
+    "track": "practice",
+    "level": "Pro",
+    "module": "Logic building",
+    "title": "Logic inside a Django view",
+    "minutes": 18,
+    "keywords": [
+      "view",
+      "owner",
+      "form",
+      "redirect",
+      "queryset"
+    ],
+    "summary": "A view is a decision chain. Method, user, which rows, valid input, write, then redirect. Ask those questions in that order.",
+    "md": "Syntax lessons show `request` and `render`. Logic building asks which question you are answering on each line. A safe view answers them in order:\n\n1. Is this person logged in?\n2. Is the method one you accept?\n3. Which rows is this person allowed to see or change?\n4. If they sent data, is it valid?\n5. Which fields does the server set, that the form must not?\n6. What response matches the outcome?\n\n```py\ndef toggle(request, pk):\n    if request.method != \"POST\":\n        return HttpResponseNotAllowed([\"POST\"])\n    task = get_object_or_404(Task, pk=pk, owner=request.user)\n    task.done = not task.done\n    task.save(update_fields=[\"done\"])\n    return redirect(\"task-list\")\n```\n\nPut `@login_required` on the view so question 1 is not a copy-paste inside every function. The owner lives in the lookup, so another user's id is a 404 rather than a toggle.\n\n## What not to trust\n\nThe browser can send any field. Logic that matters belongs on the server.\n\n| Question | Wrong place | Right place |\n| --- | --- | --- |\n| Who owns this row? | A hidden `owner` input | `request.user` in the view |\n| May they see it? | `{% if %}` in the template only | `filter(owner=request.user)` |\n| Did the write succeed? | Assuming `save` always matches the form | Validate, then save, then redirect |\n| Counting a vote | `votes += 1` then `save` | `F(\"votes\") + 1` in the database |\n\n:::why\nTwo people can read `votes == 3` and both save `4`. The database never saw 5. `F(\"votes\") + 1` tells the database to add one to the stored value. The logic \"one click, one vote\" has to be true under two clicks at once, not only in a single-user trace.\n:::\n\n:::watch\nReturning the form page after a successful POST makes refresh submit again. The logic of a successful write is \"redirect to a page that loads with GET.\" Show the form again only when the input is invalid.\n:::\n\n:::quiz\nWhere do you decide that a task belongs to the logged-in user?\n+ In the queryset, together with the primary key\n- Only in the template, around the button\n- In a hidden field the form posts back\nbecause: The template can be skipped and a hidden field can be edited. The query is the decision that actually loads the row.\n:::\n",
+    "source": "content/practice/13-logic-django.md"
+  },
+  {
+    "id": "tasks-decisions",
+    "track": "practice",
+    "level": "Beginner",
+    "module": "Tasks",
+    "title": "Tasks — decisions",
+    "minutes": 25,
+    "keywords": [
+      "task",
+      "if",
+      "elif",
+      "function"
+    ],
+    "summary": "Six short functions. Each one is a decision. Try them before you open the solution.",
+    "md": "Write each function yourself. Run your version, then open the solution and compare the shape, not only the result.\n\nRules for every task: return a value. Do not print inside the function. Reject nonsense with `ValueError` when the task says so.\n\n## Task 1 — even\n\nReturn `True` when `n` is even.\n\nExamples: `2 → True`, `7 → False`, `0 → True`.\n\n:::solution\n```python\ndef is_even(n):\n    return n % 2 == 0\n\nprint(is_even(2), is_even(7), is_even(0))\n```\n:::\n\n## Task 2 — larger of two\n\nReturn the larger number. If they are equal, return that number.\n\n:::solution\n```python\ndef larger(a, b):\n    if a >= b:\n        return a\n    return b\n\nprint(larger(3, 9), larger(4, 4), larger(-1, -5))\n```\n:::\n\n## Task 3 — absolute value\n\nReturn the number if it is zero or positive. Return its opposite if it is negative. Do not call `abs`.\n\n:::solution\n```python\ndef absolute(n):\n    if n < 0:\n        return -n\n    return n\n\nprint(absolute(-8), absolute(0), absolute(3))\n```\n:::\n\n## Task 4 — one fizz\n\nGiven one integer, return `\"Fizz\"` if it is divisible by 3, `\"Buzz\"` if by 5, `\"FizzBuzz\"` if by both, otherwise the number as text.\n\n:::solution\n```python\ndef fizz(n):\n    if n % 15 == 0:\n        return \"FizzBuzz\"\n    if n % 3 == 0:\n        return \"Fizz\"\n    if n % 5 == 0:\n        return \"Buzz\"\n    return str(n)\n\nprint(fizz(3), fizz(5), fizz(15), fizz(2))\n```\n\nCheck 15 before 3. A number divisible by both is divisible by 3, so the combined test has to win first. `15` is 3 times 5, so `% 15` is the \"both\" test for these two factors.\n:::\n\n## Task 5 — grade\n\n`90+` is `\"A\"`, `80–89` is `\"B\"`, `70–79` is `\"C\"`, otherwise `\"retry\"`. Raise `ValueError` if the score is outside 0 to 100.\n\n:::solution\n```python\ndef grade(score):\n    if not 0 <= score <= 100:\n        raise ValueError(\"score must be from 0 to 100\")\n    if score >= 90:\n        return \"A\"\n    if score >= 80:\n        return \"B\"\n    if score >= 70:\n        return \"C\"\n    return \"retry\"\n\nprint(grade(91), grade(80), grade(70), grade(69))\n```\n:::\n\n## Task 6 — sign\n\nReturn `1`, `0`, or `-1`.\n\n:::solution\n```python\ndef sign(n):\n    if n > 0:\n        return 1\n    if n < 0:\n        return -1\n    return 0\n\nprint(sign(12), sign(0), sign(-2))\n```\n:::\n\n:::quiz\nWhy does fizz check 15 before 3?\n+ A multiple of both would match the \"only 3\" test if that test came first\n- 15 is smaller than 3\n- Python requires larger numbers first\nbecause: The first true branch wins. \"Both\" is more specific than \"only 3,\" so it has to be asked first.\n:::\n",
+    "source": "content/practice/20-tasks-decisions.md"
+  },
+  {
+    "id": "tasks-loops",
+    "track": "practice",
+    "level": "Beginner",
+    "module": "Tasks",
+    "title": "Tasks — loops",
+    "minutes": 30,
+    "keywords": [
+      "task",
+      "loop",
+      "sum",
+      "count",
+      "factorial"
+    ],
+    "summary": "Count, total, find, and keep. Each task is one loop job.",
+    "md": "Use a `for` loop unless the task is about \"until.\" Start from the empty answer: `0`, `[]`, or \"not found yet.\"\n\n## Task 1 — sum\n\nReturn the sum of a list of numbers. An empty list sums to 0. Do not call `sum`.\n\n:::solution\n```python\ndef add_all(nums):\n    result = 0\n    for num in nums:\n        result += num\n    return result\n\nprint(add_all([4, 1, 7]), add_all([]))\n```\n:::\n\n## Task 2 — count evens\n\n:::solution\n```python\ndef count_evens(nums):\n    count = 0\n    for num in nums:\n        if num % 2 == 0:\n            count += 1\n    return count\n\nprint(count_evens([1, 2, 3, 4, 6]))\n```\n:::\n\n## Task 3 — all positive\n\nReturn `True` only when every number is greater than 0. An empty list is `True`: there is no counterexample.\n\n:::solution\n```python\ndef all_positive(nums):\n    for num in nums:\n        if num <= 0:\n            return False\n    return True\n\nprint(all_positive([1, 2]), all_positive([1, 0]), all_positive([]))\n```\n:::\n\n## Task 4 — factorial\n\n`factorial(0)` is 1. `factorial(5)` is 120. Raise `ValueError` for a negative.\n\n:::solution\n```python\ndef factorial(n):\n    if n < 0:\n        raise ValueError(\"n cannot be negative\")\n    result = 1\n    for i in range(2, n + 1):\n        result *= i\n    return result\n\nprint(factorial(0), factorial(5))\n```\n:::\n\n## Task 5 — keep the positives\n\nReturn a new list. Leave the original unchanged.\n\n:::solution\n```python\ndef positives(nums):\n    kept = []\n    for num in nums:\n        if num > 0:\n            kept.append(num)\n    return kept\n\ndata = [-1, 0, 4, 2]\nprint(positives(data), data)\n```\n:::\n\n## Task 6 — first longer than n\n\nReturn the first word whose length is greater than `n`, or `None`.\n\n:::solution\n```python\ndef first_longer(words, n):\n    for word in words:\n        if len(word) > n:\n            return word\n    return None\n\nprint(first_longer([\"a\", \"cat\", \"horse\"], 3))\nprint(first_longer([\"a\", \"be\"], 3))\n```\n:::\n",
+    "source": "content/practice/21-tasks-loops.md"
+  },
+  {
+    "id": "tasks-lists",
+    "track": "practice",
+    "level": "Beginner",
+    "module": "Tasks",
+    "title": "Tasks — lists and strings",
+    "minutes": 30,
+    "keywords": [
+      "task",
+      "list",
+      "string",
+      "index",
+      "slice"
+    ],
+    "summary": "Reverse, palindrome, vowels, unique order, and the second largest value.",
+    "md": "Strings and lists are both sequences. An index is a position. Do the work in a new list unless the task tells you to change the original.\n\n## Task 1 — reverse\n\nReturn a new list, reversed. Do not call `reversed` or use a backward slice. Then try the slice and see that it matches.\n\n:::solution\n```python\ndef reverse(items):\n    result = []\n    for item in items:\n        result.insert(0, item)\n    return result\n\nprint(reverse([1, 2, 3]))\nprint([1, 2, 3][::-1])\n```\n\nInserting at 0 teaches the idea and gets slow on long lists. `[::-1]` and `list(reversed(items))` are the versions you use after the idea is clear.\n:::\n\n## Task 2 — palindrome letters\n\nIgnore case and anything that is not a letter or digit.\n\n:::solution\n```python\ndef is_palindrome(text):\n    chars = [ch.casefold() for ch in text if ch.isalnum()]\n    return chars == chars[::-1]\n\nprint(is_palindrome(\"A man, a plan, a canal: Panama\"))\nprint(is_palindrome(\"nope\"))\n```\n:::\n\n## Task 3 — vowels\n\nCount `a e i o u` in either case. `y` is not a vowel here.\n\n:::solution\n```python\ndef vowel_count(text):\n    vowels = set(\"aeiou\")\n    count = 0\n    for ch in text.casefold():\n        if ch in vowels:\n            count += 1\n    return count\n\nprint(vowel_count(\"Queue\"))\n```\n:::\n\n## Task 4 — unique, same order\n\n`[\"b\", \"a\", \"b\"]` becomes `[\"b\", \"a\"]`.\n\n:::solution\n```python\ndef unique(items):\n    seen = set()\n    result = []\n    for item in items:\n        if item in seen:\n            continue\n        seen.add(item)\n        result.append(item)\n    return result\n\nprint(unique([\"b\", \"a\", \"b\", \"c\", \"a\"]))\n```\n:::\n\n## Task 5 — second largest\n\nUse the values, not the positions. Duplicates of the largest do not count as second. Raise `ValueError` if there is no second value.\n\n:::solution\n```python\ndef second_largest(nums):\n    best = None\n    second = None\n    for num in nums:\n        if best is None or num > best:\n            second = best\n            best = num\n        elif num != best and (second is None or num > second):\n            second = num\n    if second is None:\n        raise ValueError(\"need two different values\")\n    return second\n\nprint(second_largest([3, 1, 3, 2]))\n```\n:::\n",
+    "source": "content/practice/22-tasks-lists.md"
+  },
+  {
+    "id": "tasks-dicts",
+    "track": "practice",
+    "level": "Intermediate",
+    "module": "Tasks",
+    "title": "Tasks — dictionaries",
+    "minutes": 28,
+    "keywords": [
+      "task",
+      "dict",
+      "count",
+      "group",
+      "lookup"
+    ],
+    "summary": "Count, invert, group, and find a pair. The dict is the memory of the loop.",
+    "md": "## Task 1 — character counts\n\nCount letters only. Ignore case. Return a dict.\n\n:::solution\n```python\ndef letter_counts(text):\n    tally = {}\n    for ch in text.casefold():\n        if not ch.isalpha():\n            continue\n        tally[ch] = tally.get(ch, 0) + 1\n    return tally\n\nprint(letter_counts(\"Ada!\"))\n```\n:::\n\n## Task 2 — invert\n\nSwap keys and values. Raise `ValueError` if two keys share a value, because the swap would drop one.\n\n:::solution\n```python\ndef invert(mapping):\n    flipped = {}\n    for key, value in mapping.items():\n        if value in flipped:\n            raise ValueError(f\"duplicate value: {value}\")\n        flipped[value] = key\n    return flipped\n\nprint(invert({\"a\": 1, \"b\": 2}))\n```\n:::\n\n## Task 3 — group by length\n\nReturn a dict of lists. `\"a cat\"` becomes `{1: [\"a\"], 3: [\"cat\"]}`.\n\n:::solution\n```python\ndef by_length(words):\n    groups = {}\n    for word in words:\n        groups.setdefault(len(word), []).append(word)\n    return groups\n\nprint(by_length([\"a\", \"cat\", \"be\", \"dog\"]))\n```\n:::\n\n## Task 4 — two indexes that add to a target\n\nReturn the two indexes, or `None`. The same index may not be used twice. The list is not sorted.\n\n:::solution\n```python\ndef two_sum(nums, target):\n    seen = {}\n    for index, num in enumerate(nums):\n        need = target - num\n        if need in seen:\n            return seen[need], index\n        seen[num] = index\n    return None\n\nprint(two_sum([2, 7, 11, 15], 9))\nprint(two_sum([3, 3], 6))\n```\n\nStore the index after the lookup so a number is not paired with itself.\n:::\n\n## Task 5 — mode\n\nReturn the value that appears most. If there is a tie, return the one that appeared first.\n\n:::solution\n```python\ndef mode(items):\n    tally = {}\n    best = None\n    best_count = 0\n    for item in items:\n        tally[item] = tally.get(item, 0) + 1\n        if best is None or tally[item] > best_count:\n            best = item\n            best_count = tally[item]\n    return best\n\nprint(mode([\"b\", \"a\", \"b\", \"a\", \"b\"]))\n```\n:::\n",
+    "source": "content/practice/23-tasks-dicts.md"
+  },
+  {
+    "id": "tasks-functions",
+    "track": "practice",
+    "level": "Intermediate",
+    "module": "Tasks",
+    "title": "Tasks — functions and edges",
+    "minutes": 28,
+    "keywords": [
+      "task",
+      "function",
+      "edge",
+      "parse",
+      "page"
+    ],
+    "summary": "Clamp, chunk, parse, and paginate. Each function does one job and says what it refuses.",
+    "md": "## Task 1 — clamp\n\nForce `n` into `low`..`high`. Raise `ValueError` if `low > high`.\n\n:::solution\n```python\ndef clamp(n, low, high):\n    if low > high:\n        raise ValueError(\"low cannot be above high\")\n    if n < low:\n        return low\n    if n > high:\n        return high\n    return n\n\nprint(clamp(15, 0, 10), clamp(-2, 0, 10), clamp(4, 0, 10))\n```\n:::\n\n## Task 2 — chunks\n\n`chunks([1, 2, 3, 4, 5], 2)` returns `[[1, 2], [3, 4], [5]]`. Raise `ValueError` if the size is less than 1.\n\n:::solution\n```python\ndef chunks(items, size):\n    if size < 1:\n        raise ValueError(\"size must be at least 1\")\n    return [items[i:i + size] for i in range(0, len(items), size)]\n\nprint(chunks([1, 2, 3, 4, 5], 2))\nprint(chunks([], 3))\n```\n:::\n\n## Task 3 — parse an int from text\n\nStrip spaces. Return the int. Raise `ValueError` with a short message for blanks and for words.\n\n:::solution\n```python\ndef parse_int(text):\n    cleaned = text.strip()\n    if not cleaned:\n        raise ValueError(\"blank\")\n    try:\n        return int(cleaned)\n    except ValueError as exc:\n        raise ValueError(\"not an integer\") from exc\n\nprint(parse_int(\" 42 \"))\n```\n:::\n\n## Task 4 — one page\n\nReturn the slice for a 1-based page number. `page([], 1, 10)` is `[]`. Page 2 of a 3-item list with size 2 is the last item. Raise `ValueError` if the page is below 1 or the size is below 1.\n\n:::solution\n```python\ndef page(items, number, size):\n    if number < 1 or size < 1:\n        raise ValueError(\"page and size start at 1\")\n    start = (number - 1) * size\n    return items[start:start + size]\n\nprint(page([\"a\", \"b\", \"c\", \"d\", \"e\"], 2, 2))\nprint(page([\"a\"], 3, 2))\n```\n:::\n\n## Task 5 — password rules as separate checks\n\nReturn a list of problems. An empty list means the password passed. Rules: at least 8 characters, one lowercase, one uppercase, one digit. Do not print.\n\n:::solution\n```python\ndef password_problems(text):\n    problems = []\n    if len(text) < 8:\n        problems.append(\"use at least 8 characters\")\n    if not any(ch.islower() for ch in text):\n        problems.append(\"add a lowercase letter\")\n    if not any(ch.isupper() for ch in text):\n        problems.append(\"add an uppercase letter\")\n    if not any(ch.isdigit() for ch in text):\n        problems.append(\"add a digit\")\n    return problems\n\nprint(password_problems(\"short\"))\nprint(password_problems(\"Longpass1\"))\n```\n\nEach rule is its own test so the caller can show every problem, not only the first.\n:::\n",
+    "source": "content/practice/24-tasks-functions.md"
+  },
+  {
+    "id": "tasks-patterns",
+    "track": "practice",
+    "level": "Advanced",
+    "module": "Tasks",
+    "title": "Tasks — patterns",
+    "minutes": 35,
+    "keywords": [
+      "task",
+      "binary search",
+      "stack",
+      "window",
+      "flatten"
+    ],
+    "summary": "Binary search, a stack, a sliding window, and flattening. Match the sentence to the pattern before you type.",
+    "md": "Do the logic lessons on patterns first if these names are new. Each solution below is the pattern, not a puzzle with a hidden twist.\n\n## Task 1 — binary search\n\n`items` is sorted ascending. Return the index of `target`, or `None`. Do not call `list.index`.\n\n:::solution\n```python\ndef binary_search(items, target):\n    low = 0\n    high = len(items) - 1\n    while low <= high:\n        mid = (low + high) // 2\n        if items[mid] == target:\n            return mid\n        if items[mid] < target:\n            low = mid + 1\n        else:\n            high = mid - 1\n    return None\n\nprint(binary_search([1, 3, 4, 7, 9], 7))\nprint(binary_search([1, 3, 4, 7, 9], 2))\n```\n\n`low <= high` is what lets a one-item list succeed. `<` would skip that last remaining index.\n:::\n\n## Task 2 — balanced brackets\n\nAccept `()[]{}` and ignore nothing else: other characters return `False`. `\"\"` is balanced.\n\n:::solution\n```python\ndef balanced(text):\n    pairs = {\")\": \"(\", \"]\": \"[\", \"}\": \"{\"}\n    stack = []\n    for ch in text:\n        if ch in \"([{\":\n            stack.append(ch)\n        elif ch in pairs:\n            if not stack or stack.pop() != pairs[ch]:\n                return False\n        else:\n            return False\n    return not stack\n\nprint(balanced(\"([])\"), balanced(\"([)]\"), balanced(\"\"), balanced(\"(a)\"))\n```\n:::\n\n## Task 3 — best sum of k neighbors\n\nRaise `ValueError` when `k` does not fit.\n\n:::solution\n```python\ndef max_window(nums, k):\n    if k <= 0 or k > len(nums):\n        raise ValueError(\"k must fit the list\")\n    window = sum(nums[:k])\n    best = window\n    for i in range(k, len(nums)):\n        window += nums[i] - nums[i - k]\n        if window > best:\n            best = window\n    return best\n\nprint(max_window([2, 1, 5, 1, 3], 2))\n```\n:::\n\n## Task 4 — flatten one level\n\n`[[1, 2], [], [3]]` becomes `[1, 2, 3]`. Do not flatten deeper than one level: `[[1, [2]]]` becomes `[1, [2]]`.\n\n:::solution\n```python\ndef flatten_one(rows):\n    result = []\n    for row in rows:\n        for item in row:\n            result.append(item)\n    return result\n\nprint(flatten_one([[1, 2], [], [3]]))\nprint(flatten_one([[1, [2]]]))\n```\n:::\n\n## Task 5 — running totals\n\n`[3, 1, 4]` becomes `[3, 4, 8]`.\n\n:::solution\n```python\ndef prefix_sums(nums):\n    result = []\n    total = 0\n    for num in nums:\n        total += num\n        result.append(total)\n    return result\n\nprint(prefix_sums([3, 1, 4]))\n```\n:::\n",
+    "source": "content/practice/25-tasks-patterns.md"
+  },
+  {
+    "id": "tasks-django",
+    "track": "practice",
+    "level": "Pro",
+    "module": "Tasks",
+    "title": "Tasks — Django decisions",
+    "minutes": 30,
+    "keywords": [
+      "task",
+      "django",
+      "owner",
+      "form",
+      "test",
+      "F"
+    ],
+    "summary": "Five server-side decisions. Write the view or the test, then compare it with the solution.",
+    "md": "These run in a Django project, not in the browser Run button. Use the task board in `labs/taskboard` or a fresh app. The snippets assume a `Task` model with `title`, `done`, and `owner`.\n\n## Task 1 — only my rows\n\nThe list view must not leak another user's tasks.\n\n:::solution\n```py\n@login_required\ndef task_list(request):\n    tasks = Task.objects.filter(owner=request.user)\n    return render(request, \"tasks/list.html\", {\"tasks\": tasks})\n```\n\nFiltering in the template is too late. The query is the decision.\n:::\n\n## Task 2 — toggle only my task\n\nPOST only. Another user's id is a 404. Update the `done` column only.\n\n:::solution\n```py\n@login_required\n@require_POST\ndef toggle(request, pk):\n    task = get_object_or_404(Task, pk=pk, owner=request.user)\n    task.done = not task.done\n    task.save(update_fields=[\"done\"])\n    return redirect(\"task-list\")\n```\n:::\n\n## Task 3 — the server sets the owner\n\nThe form has `title` and `detail`. It does not have `owner`.\n\n:::solution\n```py\n@login_required\ndef create_task(request):\n    if request.method == \"POST\":\n        form = TaskForm(request.POST)\n        if form.is_valid():\n            task = form.save(commit=False)\n            task.owner = request.user\n            task.save()\n            return redirect(\"task-list\")\n    else:\n        form = TaskForm()\n    return render(request, \"tasks/form.html\", {\"form\": form})\n```\n\n`commit=False` gives you a model instance without writing the row, so you can set `owner` before the real `save`. A successful POST redirects. An invalid POST falls through and shows the form with errors.\n:::\n\n## Task 4 — one vote is one increment\n\nTwo requests must not lose an increment.\n\n:::solution\n```py\nfrom django.db.models import F\n\nchoice.votes = F(\"votes\") + 1\nchoice.save(update_fields=[\"votes\"])\nchoice.refresh_from_db()\n```\n\nAfter `save`, `choice.votes` is still an `F` expression until you reload the row. Read it back with `refresh_from_db` before you display the number in Python.\n:::\n\n## Task 5 — a test that the other user loses\n\nWrite the test before you trust the view.\n\n:::solution\n```py\ndef test_cannot_toggle_someone_elses_task(self):\n    other = User.objects.create_user(\"other\", password=\"secret-pass-123\")\n    task = Task.objects.create(title=\"Mine\", owner=self.user, done=False)\n    self.client.force_login(other)\n    response = self.client.post(reverse(\"task-toggle\", args=[task.pk]))\n    self.assertEqual(response.status_code, 404)\n    task.refresh_from_db()\n    self.assertFalse(task.done)\n```\n\nAssert the status and the row. A 404 that still flipped `done` would be a passing test if you only checked the status.\n:::\n\n:::quiz\nWhy is owner both in the filter and absent from the form?\n+ The logged-in user is the source of truth. A posted owner field can be forged.\n- Django forms cannot include foreign keys\n- Templates are not allowed to show the owner\nbecause: Anything the browser sends can be changed. The view copies `request.user` onto the row after the form is valid.\n:::\n",
+    "source": "content/practice/26-tasks-django.md"
+  },
+  {
+    "id": "cheat-logic",
+    "track": "practice",
+    "level": "Reference",
+    "module": "Cheat codes",
+    "title": "Cheat codes — logic shapes",
+    "minutes": 18,
+    "keywords": [
+      "cheat",
+      "pattern",
+      "logic",
+      "loop",
+      "lookup"
+    ],
+    "summary": "When the sentence sounds like this, the code has this shape. Use it as a lookup while you solve a task.",
+    "md": "Read the problem until one row matches. Then write that shape. Do not start from a blank `for`.\n\n| You hear | Shape | Start value |\n| --- | --- | --- |\n| How many | count loop | `0` |\n| How much, the total | add loop | `0` |\n| The product | multiply loop | `1` |\n| The first match | return inside the loop, then a missing value | `None` after the loop |\n| Every match, same order | append into a new list | `[]` |\n| Yes if every item passes | return `False` on the first failure | `True` after the loop |\n| Yes if any item passes | return `True` on the first success | `False` after the loop |\n| The largest or smallest | remember the best so far | the first item, after an empty check |\n| Have I seen this? | set | `set()` |\n| How many of each? | dict of counts | `{}` |\n| Group these | dict of lists | `setdefault(key, [])` |\n| What was stored under this name? | dict lookup | `.get(key)` when missing is allowed |\n| Same forward and back | two indexes, or compare with a reverse | left `0`, right `len - 1` |\n| Most recent unmatched opener | stack (a list, append and pop) | `[]` |\n| Best stretch of k neighbors | sliding window | sum of the first k |\n| Find in a sorted list | binary search | low `0`, high `len - 1` |\n| Nested boxes, folders, replies | recursion with a base case | the empty case |\n| Who may touch this row | filter by the logged-in user | `request.user` |\n\n## The card you fill in before coding\n\n1. Input and its type.\n2. Output and its type.\n3. Three examples, including empty.\n4. The row from the table above.\n5. What you refuse (`ValueError`, 404, invalid form).\n\n## Order of tests\n\n- More specific test first (`FizzBuzz` before `Fizz`, `% 400` before `% 4`).\n- Guard the bad case and return.\n- Then the normal case, unindented.\n\n## One loop, one job\n\nIf you are both appending and returning inside the same loop, you have two jobs. Split them.\n\n:::tip\nSearch this page for a word from the problem: \"first\", \"every\", \"group\", \"seen\", \"sorted\". The row is the cheat code. The tasks are where you practice it until you do not need the table.\n:::\n",
+    "source": "content/practice/30-cheat-logic.md"
+  },
+  {
+    "id": "cheat-python",
+    "track": "practice",
+    "level": "Reference",
+    "module": "Cheat codes",
+    "title": "Cheat codes — Python",
+    "minutes": 22,
+    "keywords": [
+      "cheat",
+      "python",
+      "slice",
+      "dict",
+      "exception",
+      "comprehension"
+    ],
+    "summary": "The lines you look up while writing. Each one is a shape, not a full lesson.",
+    "md": "The keyword reference and the builtins page are the catalogs. This page is the lines you copy the shape of.\n\n## Names\n\n```py\na, b = b, a\nname, _, score = row\nlow, high = bounds()\n```\n\nThe right-hand side finishes before any name on the left changes.\n\n## Decisions\n\n```py\nif n < 0:\n    raise ValueError(\"n cannot be negative\")\nlabel = \"even\" if n % 2 == 0 else \"odd\"\n```\n\n`if x is None` for missing. `if not items` for an empty list. `if x` is the wrong test when `0` is a real value.\n\n## Loops\n\n```py\nfor index, item in enumerate(items, start=1):\n    ...\nfor left, right in zip(names, scores, strict=True):\n    ...\nfor n in range(1, limit + 1):\n    ...\n```\n\n`range` stops before the end. `zip(..., strict=True)` raises if the lengths differ.\n\n## Lists and slices\n\n```py\nitems[0]          # first\nitems[-1]         # last\nitems[1:4]        # index 1, 2, 3\nitems[:3]         # first three\nitems[-2:]        # last two\nitems[::2]        # every second\nitems[::-1]       # reverse\nitems[i:i + size] # one chunk\n```\n\nA slice never raises for being too long. It returns what is there. An index does raise.\n\n## Dicts and sets\n\n```py\nvalue = mapping.get(\"key\", default)\nmapping.setdefault(key, []).append(item)\ntally[key] = tally.get(key, 0) + 1\nif key in mapping:\n    ...\nunique = set(items)\nshared = set(left) & set(right)\nonly_left = set(left) - set(right)\n```\n\n`get` does not insert. `setdefault` does.\n\n## Keep, without a long loop\n\n```py\nkept = [n for n in nums if n > 0]\nsquares = {n: n * n for n in nums}\nfound = next((n for n in nums if n < 0), None)\n```\n\nA comprehension that also prints or saves a file is the wrong tool. Use a `for` loop when the step has a side effect.\n\n## Functions\n\n```py\ndef clamp(n, low=0, high=100):\n    return min(high, max(low, n))\n\ndef first(items, default=None):\n    return items[0] if items else default\n```\n\nDo not use a list or dict as a default argument. Use `None`, then create the list inside the function.\n\n## Exceptions\n\n```py\ntry:\n    number = int(text)\nexcept ValueError as exc:\n    raise ValueError(\"not an integer\") from exc\n```\n\nCatch the type you can handle. `except Exception` hides bugs. A bare `except` also hides `KeyboardInterrupt`.\n\n## Files\n\n```py\nfrom pathlib import Path\n\ntext = Path(\"notes.txt\").read_text(encoding=\"utf-8\")\nPath(\"out.txt\").write_text(text, encoding=\"utf-8\")\n```\n\n## Sorting and the usual builtins\n\n```py\nordered = sorted(words, key=str.casefold)\nbest = max(nums)\nposition = min(range(len(nums)), key=nums.__getitem__)\nany_even = any(n % 2 == 0 for n in nums)\nall_positive = all(n > 0 for n in nums)\n```\n\n`max([])` raises. Check empty first when empty is a normal case.\n\n## Counts from the standard library\n\n```py\nfrom collections import Counter\n\nCounter(\"abca\").most_common(1)\n```\n\n## The lines that look clever and are wrong\n\n| Wrong | Use |\n| --- | --- |\n| `if x == None` | `if x is None` |\n| `if x == True` | `if x` or `if x is True` |\n| `except:` | `except ValueError:` |\n| `items = items.append(x)` | `items.append(x)` |\n| `def f(items=[])` | `def f(items=None)` then `items = [] if items is None else items` |\n| `range(len(items))` just to get the item | `for item in items` or `enumerate` |\n\n:::tip\nIf you need a keyword, operator, or dunder that is not on this page, use the Reference track. Those pages are the full lists. This page is the working set.\n:::\n",
+    "source": "content/practice/31-cheat-python.md"
+  },
+  {
+    "id": "cheat-django",
+    "track": "practice",
+    "level": "Reference",
+    "module": "Cheat codes",
+    "title": "Cheat codes — Django",
+    "minutes": 22,
+    "keywords": [
+      "cheat",
+      "django",
+      "view",
+      "queryset",
+      "form",
+      "test"
+    ],
+    "summary": "The view, query, form, template, and test shapes you reach for. The Django cheatsheet in Reference is the catalog of names.",
+    "md": "These are the shapes. Names of every lookup and template tag live in the Django cheatsheet.\n\n## URL\n\n```py\npath(\"tasks/<int:pk>/toggle/\", views.toggle, name=\"task-toggle\"),\n```\n\nReverse the name. Do not paste the path in a template or a test.\n\n```django\n<a href=\"{% url 'task-toggle' task.pk %}\">Toggle</a>\n```\n\n```py\nreverse(\"task-toggle\", args=[task.pk])\n```\n\n## A page that changes data\n\n```py\n@login_required\n@require_POST\ndef toggle(request, pk):\n    task = get_object_or_404(Task, pk=pk, owner=request.user)\n    task.done = not task.done\n    task.save(update_fields=[\"done\"])\n    return redirect(\"task-list\")\n```\n\nGET reads. POST changes. The owner is part of the lookup.\n\n## A form that creates\n\n```py\nif request.method == \"POST\":\n    form = TaskForm(request.POST)\n    if form.is_valid():\n        task = form.save(commit=False)\n        task.owner = request.user\n        task.save()\n        return redirect(\"task-list\")\nelse:\n    form = TaskForm()\n```\n\nThe template includes `{% csrf_token %}` inside the `<form method=\"post\">`.\n\n## Queries\n\n```py\nTask.objects.filter(owner=request.user, done=False).order_by(\"-created_at\")\nTask.objects.select_related(\"owner\")\nBook.objects.prefetch_related(\"tags\")\nTask.objects.filter(title__icontains=query)\n```\n\n`select_related` follows a foreign key in the same query. `prefetch_related` is for many rows on the other side. Filter before you slice or paginate.\n\n## One increment\n\n```py\nfrom django.db.models import F\n\nchoice.votes = F(\"votes\") + 1\nchoice.save(update_fields=[\"votes\"])\n```\n\n## Two writes that must agree\n\n```py\nfrom django.db import transaction\n\nwith transaction.atomic():\n    team = Team.objects.create(name=name)\n    Membership.objects.create(team=team, user=request.user, role=\"owner\")\n```\n\nSend mail after commit with `transaction.on_commit(send)`, not inside the block.\n\n## Template\n\n```django\n{% if tasks %}\n  <ul>\n  {% for task in tasks %}\n    <li>{{ task.title }}</li>\n  {% endfor %}\n  </ul>\n{% else %}\n  <p>No tasks yet.</p>\n{% endif %}\n```\n\n`{{ name }}` escapes HTML. Do not mark user text `|safe`.\n\n## Test\n\n```py\nself.client.force_login(other)\nresponse = self.client.post(reverse(\"task-toggle\", args=[task.pk]))\nself.assertEqual(response.status_code, 404)\ntask.refresh_from_db()\nself.assertFalse(task.done)\n```\n\nLog in with `force_login` unless the test is about the login form. Assert the row, not only the status code.\n\n## The mistakes the shapes exist to prevent\n\n| Mistake | Shape that prevents it |\n| --- | --- |\n| Hidden owner field | `task.owner = request.user` |\n| Delete or toggle on GET | `@require_POST` |\n| Another user's row | `owner=request.user` in the same lookup |\n| Refresh resubmits the form | `redirect` after a valid POST |\n| Lost vote | `F(\"votes\") + 1` |\n| HTML built with an f-string | a template |\n| Path typed in three places | `name=` and `{% url %}` |\n\n:::tip\n`python manage.py check --deploy` is the cheat code for production settings. Read every warning. The deployment lesson explains the ones that matter.\n:::\n",
+    "source": "content/practice/32-cheat-django.md"
+  },
+  {
+    "id": "cheat-stuck",
+    "track": "practice",
+    "level": "Reference",
+    "module": "Cheat codes",
+    "title": "Cheat codes — when you are stuck",
+    "minutes": 14,
+    "keywords": [
+      "debug",
+      "traceback",
+      "error",
+      "bug",
+      "stuck"
+    ],
+    "summary": "A short order of checks for when the code runs and the answer is wrong, or when it will not run at all.",
+    "md": "Use this page in order. Stop at the first check that you cannot answer.\n\n## It will not run\n\n1. Read the **last** line of the traceback. That is the exception type and the message.\n2. Find the last file that is yours. Lines inside site-packages are the library noticing your mistake.\n3. Match the type:\n\n| Exception | First place to look |\n| --- | --- |\n| `SyntaxError` | The line named, and the line just above it |\n| `IndentationError` | Mixed spaces, or a missing block after `:` |\n| `NameError` | Typo, or the name is inside a branch that did not run |\n| `TypeError` | You called a number, or added a string to an int, or passed the wrong arguments |\n| `ValueError` | The type is right and the contents are not, such as `int(\"no\")` |\n| `KeyError` | The dict key is missing. Use `.get` when missing is normal |\n| `IndexError` | The list is empty, or the index is `len(items)` instead of `len(items) - 1` |\n| `AttributeError` | That object does not have that method. Print `type(obj)` |\n| `RecursionError` | A recursive call is not shrinking, or the base case is missing |\n| Django `TemplateDoesNotExist` | The template path, and `APP_DIRS` |\n| Django 403 on POST | `{% csrf_token %}` missing, or the view is not exempt on purpose |\n| Django 404 | The URL pattern, the `pk`, or an owner filter that excluded the row |\n\n## It runs and the answer is wrong\n\n1. Write the example that fails, as a function call and the result you expected.\n2. Trace the names on that example. One row per change.\n3. Check the start value. Sums start at 0. Products start at 1. \"Not found\" is not 0 if 0 can be real data.\n4. Check the end of a range. `range(n)` never yields `n`.\n5. Check whether you compared an item with itself, or added it to the set before the lookup.\n6. Print `repr(value)` if spaces might be hiding in a string.\n\n## Django, and the page looks empty\n\n1. Is the queryset filtered so tightly that no row matches?\n2. Did you forget to migrate?\n3. Are you logged in as the owner the rows were created with?\n4. Is the template looping over the right context name?\n5. Did a successful POST redirect to a different page than the one you are staring at?\n\n:::why\nGuessing a fix and running again feels faster for one minute. The traceback and one traced example are faster after that, because each guess without a failing example can \"fix\" the wrong line.\n:::\n\n:::tip\nWhen you find the bug, add the failing example next to the function as a comment or a test. The next time the same shape breaks, you already have the cheat code.\n:::\n",
+    "source": "content/practice/33-cheat-stuck.md"
+  },
+  {
     "id": "project-how-to-build",
     "track": "project",
     "level": "Beginner",
@@ -971,7 +1416,7 @@ window.PATHLINE_LESSONS = [
       "solution"
     ],
     "summary": "Read in order, type the code yourself, and use the labs as proof that you can build something.",
-    "md": "You do not need to know what a program is. You do need a computer, a browser, and the willingness to type code instead of only reading it.\n\n## What you are learning\n\nPython is the programming language. Django is a toolkit, written in Python, for building websites and web APIs. You learn Python first because Django is Python. If the Python parts feel slow, they are doing the real work: every Django model, view, and setting is a Python object.\n\nThe course is aimed at **Python 3.15** and **Django 6.1**, the current releases as of October 2026. Django 6.1 runs on Python 3.12 through 3.15. Install a current 3.12+ if 3.15 is awkward on your machine, and read the lesson on 3.14 and 3.15 features before you use the newest syntax.\n\n## How a lesson is built\n\nEach lesson has four kinds of blocks:\n\n- **Why this works** explains the rule underneath the syntax. This is where most tutorials skip, and where bugs come from.\n- **Watch this** is a mistake that looks reasonable and is wrong.\n- **Try this** is work for you. Attempt it before you open the solution.\n- A **quiz** checks one idea. The point is the reason, not the score.\n\nA code block labeled **Python** has a **Run** button. It executes in your browser with [Pyodide](https://pyodide.org/). The first run downloads the runner. The browser runner is a recent Python, but it is not always 3.15, so `lazy import`, `frozendict`, and `sentinel` should be run on your own install. Django code never runs in the browser. You type that into the lab project.\n\n## A way to study that works\n\n1. Read one lesson.\n2. Type every example. Change one value and predict the new result before you run it.\n3. Do the exercise from a blank file.\n4. Mark the lesson complete. The mark is stored in this browser only.\n5. When a word is unfamiliar, search it in the sidebar. The reference lessons list every keyword, the operators, the exceptions, and the Django field and lookup catalogs.\n\nPress `/` to jump to search.\n\n## What \"complete\" means here\n\nYou will meet every Python keyword and soft keyword, the data model (names, objects, mutability, identity), the standard tools people use daily, and the parts of Django that a production project actually uses: URLs, views, templates, models, migrations, the ORM, forms, admin, auth, security, tests, REST, background tasks, and deployment.\n\nPython's standard library has more modules than a course can narrate one by one. The standard-library map names them and says what each is for. The deep lessons teach the ones you will use while building software. Django's official reference remains the spec for every setting and every obscure contrib app; this course teaches the ones you must understand and gives you a catalog so you know the rest exist.\n\n## Projects, then two labs you can run today\n\nThe Projects track in the sidebar is the build ladder: beginner programs, intermediate file and test projects, beginner Django sites, and a professional team app with an API. Do those after the matching lessons, or when you want a break from reading.\n\nTwo finished labs are also in the repository:\n\n- `labs/contact_book.py` is a command-line address book. It uses functions, dictionaries, files, and exceptions.\n- `labs/taskboard/` is a Django project: accounts, a task model, forms, templates, the admin, and tests.\n\n:::tip\nWhen an error appears, read the last line first (the exception type and message), then the last file that is yours, not a library. The lesson on exceptions and the lesson on debugging show you how.\n:::\n\n:::quiz\nWhat should you do with a Try this block?\n- Open the solution, then retype it\n+ Attempt it yourself before opening the solution\n- Skip it and stay on the reading\nbecause: Typing from memory is what moves a concept into your hands. The solution is there to compare after you have tried.\n:::\n",
+    "md": "You do not need to know what a program is. You do need a computer, a browser, and the willingness to type code instead of only reading it.\n\n## What you are learning\n\nPython is the programming language. Django is a toolkit, written in Python, for building websites and web APIs. You learn Python first because Django is Python. If the Python parts feel slow, they are doing the real work: every Django model, view, and setting is a Python object.\n\nThe course is aimed at **Python 3.15** and **Django 6.1**, the current releases as of October 2026. Django 6.1 runs on Python 3.12 through 3.15. Install a current 3.12+ if 3.15 is awkward on your machine, and read the lesson on 3.14 and 3.15 features before you use the newest syntax.\n\n## How a lesson is built\n\nEach lesson has four kinds of blocks:\n\n- **Why this works** explains the rule underneath the syntax. This is where most tutorials skip, and where bugs come from.\n- **Watch this** is a mistake that looks reasonable and is wrong.\n- **Try this** is work for you. Attempt it before you open the solution.\n- A **quiz** checks one idea. The point is the reason, not the score.\n\nA code block labeled **Python** has a **Run** button. It executes in your browser with [Pyodide](https://pyodide.org/). The first run downloads the runner. The browser runner is a recent Python, but it is not always 3.15, so `lazy import`, `frozendict`, and `sentinel` should be run on your own install. Django code never runs in the browser. You type that into the lab project.\n\n## A way to study that works\n\n1. Read one lesson.\n2. Type every example. Change one value and predict the new result before you run it.\n3. Do the exercise from a blank file.\n4. Mark the lesson complete. The mark is stored in this browser only.\n5. When a word is unfamiliar, search it in the sidebar. The reference lessons list every keyword, the operators, the exceptions, and the Django field and lookup catalogs.\n\nPress `/` to jump to search.\n\n## What \"complete\" means here\n\nYou will meet every Python keyword and soft keyword, the data model (names, objects, mutability, identity), the standard tools people use daily, and the parts of Django that a production project actually uses: URLs, views, templates, models, migrations, the ORM, forms, admin, auth, security, tests, REST, background tasks, and deployment.\n\nPython's standard library has more modules than a course can narrate one by one. The standard-library map names them and says what each is for. The deep lessons teach the ones you will use while building software. Django's official reference remains the spec for every setting and every obscure contrib app; this course teaches the ones you must understand and gives you a catalog so you know the rest exist.\n\n## Projects, then two labs you can run today\n\nThe Practice track is where logic is trained on purpose. Logic lessons show how to turn a sentence into steps. Tasks are short problems with solutions under a disclosure. Cheat codes are the lookup pages for shapes, Python lines, Django lines, and what to do when you are stuck.\n\nThe Projects track in the sidebar is the build ladder: beginner programs, intermediate file and test projects, beginner Django sites, and a professional team app with an API. Do those after the matching lessons, or when you want a break from reading.\n\nTwo finished labs are also in the repository:\n\n- `labs/contact_book.py` is a command-line address book. It uses functions, dictionaries, files, and exceptions.\n- `labs/taskboard/` is a Django project: accounts, a task model, forms, templates, the admin, and tests.\n\n:::tip\nWhen an error appears, read the last line first (the exception type and message), then the last file that is yours, not a library. The lesson on exceptions and the lesson on debugging show you how.\n:::\n\n:::quiz\nWhat should you do with a Try this block?\n- Open the solution, then retype it\n+ Attempt it yourself before opening the solution\n- Skip it and stay on the reading\nbecause: Typing from memory is what moves a concept into your hands. The solution is there to compare after you have tried.\n:::\n",
     "source": "content/python/01-how-to-use.md"
   },
   {

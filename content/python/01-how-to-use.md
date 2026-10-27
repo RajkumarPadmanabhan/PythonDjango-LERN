@@ -46,6 +46,8 @@ Python's standard library has more modules than a course can narrate one by one.
 
 ## Projects, then two labs you can run today
 
+The Practice track is where logic is trained on purpose. Logic lessons show how to turn a sentence into steps. Tasks are short problems with solutions under a disclosure. Cheat codes are the lookup pages for shapes, Python lines, Django lines, and what to do when you are stuck.
+
 The Projects track in the sidebar is the build ladder: beginner programs, intermediate file and test projects, beginner Django sites, and a professional team app with an API. Do those after the matching lessons, or when you want a break from reading.
 
 Two finished labs are also in the repository:
