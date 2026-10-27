@@ -27,6 +27,10 @@ print(reverse([1, 2, 3]))
 print([1, 2, 3][::-1])
 ```
 
+:::how
+`insert(0, item)` puts each new item at the front. Walking 1, then 2, then 3 produces `[1]`, then `[2, 1]`, then `[3, 2, 1]`. That is the reverse, built by hand. `[::-1]` means start at the beginning, stop at the end, step `-1`, so Python walks backward and builds the same list in one expression. Use the slice once the insert version makes sense.
+:::
+
 Inserting at 0 teaches the idea and gets slow on long lists. `[::-1]` and `list(reversed(items))` are the versions you use after the idea is clear.
 :::
 
@@ -43,6 +47,10 @@ def is_palindrome(text):
 print(is_palindrome("A man, a plan, a canal: Panama"))
 print(is_palindrome("nope"))
 ```
+
+:::how
+The comprehension keeps a character only when `isalnum()` is true, and `casefold()` makes `A` and `a` the same letter. Spaces, commas, and the colon drop out. `chars[::-1]` is that cleaned list backward. `==` compares the two lists item by item. Equal means every position matches its mirror, which is the definition of a palindrome after cleaning.
+:::
 :::
 
 ## Task 3 — vowels
@@ -61,6 +69,10 @@ def vowel_count(text):
 
 print(vowel_count("Queue"))
 ```
+
+:::how
+`set("aeiou")` makes membership a single question: `ch in vowels`. `casefold()` runs first so `Q` and `E` are compared as lowercase. `y` is not in the set, so it is not counted. Each match adds 1 to `count`. `"Queue"` contributes `u`, `e`, `u`, `e`: four.
+:::
 :::
 
 ## Task 4 — unique, same order
@@ -81,6 +93,10 @@ def unique(items):
 
 print(unique(["b", "a", "b", "c", "a"]))
 ```
+
+:::how
+`seen` answers "have I already kept this?" `ordered` remembers the first-seen order, which a set would throw away. The `if` skips duplicates with `continue`, so `append` runs only for a new item. `b` is added first, the second `b` is skipped, then `a`, then `c`. Both structures are updated together: look up, then record.
+:::
 :::
 
 ## Task 5 — second largest
@@ -104,4 +120,8 @@ def second_largest(nums):
 
 print(second_largest([3, 1, 3, 2]))
 ```
+
+:::how
+`best` is the largest so far. `second` is the next largest different value. When `num` beats `best`, the old `best` slides down into `second` before `best` is replaced. That slide is why a new champion does not erase the runner-up. The `elif` ignores another copy of `best` (`num != best`) and updates `second` only for a value strictly between. If `second` is still `None` at the end, every value was identical, so there is no second place to return.
+:::
 :::

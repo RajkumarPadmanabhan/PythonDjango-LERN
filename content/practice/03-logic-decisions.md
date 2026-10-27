@@ -26,6 +26,10 @@ def ticket_price(age):
 print(ticket_price(3), ticket_price(16), ticket_price(40), ticket_price(70))
 ```
 
+:::how
+Negative ages fail the data, so the first line raises and does not invent a price. Each later test is the next band, and `return` means the first true band wins. Age 16 is less than 18 and also less than 65. Because `< 18` is earlier, the price is 8 and `< 65` is never asked. Age 70 fails every `<` test, so the last line is the senior price, with no extra `if`.
+:::
+
 Age 16 is less than 18 and also less than 65. The `< 18` test is first, so the price is 8. Swap those two tests and every child pays the adult price.
 
 ## Guard, then the main path
@@ -41,6 +45,10 @@ def label(name):
 
 print(label("  ada "), label("   "))
 ```
+
+:::how
+`strip()` removes the spaces so the decision is about the letters, not the padding. `not cleaned` is true for `""`, and that path returns `"anonymous"` immediately. `"ada"` fails that test, so `title()` capitalizes it and that string is returned. There is no `else`. After a return, the rest of the function is the normal path.
+:::
 
 :::why
 Once the empty name has returned, the last line does not need an `else`. The reader sees the normal result at the bottom, which is where they look.

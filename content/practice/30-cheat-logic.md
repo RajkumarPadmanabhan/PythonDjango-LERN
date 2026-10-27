@@ -32,6 +32,10 @@ Read the problem until one row matches. Then write that shape. Do not start from
 | Nested boxes, folders, replies | recursion with a base case | the empty case |
 | Who may touch this row | filter by the logged-in user | `request.user` |
 
+:::how
+The middle column is the code shape. The right column is the value that shape starts from, and that start value is why the empty case works: a sum of nothing is 0, a product of nothing is 1, a list of nothing is `[]`. "The first match" returns inside the loop because later items do not matter. "Every item" returns `False` on the first failure and `True` only after the loop, because finishing the loop means no failure was found. Pick the row before you write `for`.
+:::
+
 ## The card you fill in before coding
 
 1. Input and its type.

@@ -34,6 +34,10 @@ print(binary_search([1, 3, 4, 7, 9], 7))
 print(binary_search([1, 3, 4, 7, 9], 2))
 ```
 
+:::how
+`low` and `high` are the ends of the slice still worth searching. `mid` is the middle index. If that value is the target, its index is the answer. If the middle is smaller than the target, everything at `mid` and to the left is too small, so `low` becomes `mid + 1`. If the middle is larger, `high` becomes `mid - 1`. The loop stops when the slice is empty (`low > high`), which means the target is absent. `low <= high` is required so a last remaining index is still checked. This only works because the list is sorted: the comparison tells you which half to throw away.
+:::
+
 `low <= high` is what lets a one-item list succeed. `<` would skip that last remaining index.
 :::
 
@@ -58,6 +62,10 @@ def balanced(text):
 
 print(balanced("([])"), balanced("([)]"), balanced(""), balanced("(a)"))
 ```
+
+:::how
+`pairs` maps each closer to the opener it must match. An opener is pushed, so the end of `stack` is the most recent unmatched opener. A closer pops that opener and compares. `([)]` fails because `[` is on top and the next closer is `)`. An empty stack on a closer means there is nothing to close. A non-bracket character returns `False` immediately because this task accepts only brackets. At the end, `not stack` is true only when every opener was closed. `""` never loops, the stack stays empty, and that is balanced.
+:::
 :::
 
 ## Task 3 — best sum of k neighbors
@@ -79,6 +87,10 @@ def max_window(nums, k):
 
 print(max_window([2, 1, 5, 1, 3], 2))
 ```
+
+:::how
+The first window is the sum of the first `k` items. Each later step reuses that sum: add the item that entered (`nums[i]`) and subtract the item that fell out (`nums[i - k]`). For `k` of 2, the windows are `2+1`, then `1+5`, then `5+1`, then `1+3`. `best` remembers the largest of those sums. Rebuilding the sum from scratch each time would be correct and slower. The guard rejects a `k` that cannot be a window of this list.
+:::
 :::
 
 ## Task 4 — flatten one level
@@ -97,6 +109,10 @@ def flatten_one(rows):
 print(flatten_one([[1, 2], [], [3]]))
 print(flatten_one([[1, [2]]]))
 ```
+
+:::how
+The outer loop walks rows. The inner loop walks items in that row and appends each one. An empty row adds nothing. The inner loop does not look inside an item, so `[2]` is one item and stays a list. That is one level. A third loop, or a recursive call, would be a deeper flatten, which this task does not ask for.
+:::
 :::
 
 ## Task 5 — running totals
@@ -115,4 +131,8 @@ def prefix_sums(nums):
 
 print(prefix_sums([3, 1, 4]))
 ```
+
+:::how
+`total` is the sum of everything seen so far. After each addition, that total is appended, so the result list is a snapshot of the memory at every step: 3, then 3+1, then 4+4. The input list is not changed. An empty input never enters the loop and returns `[]`.
+:::
 :::

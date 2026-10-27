@@ -22,6 +22,7 @@ The course is aimed at **Python 3.15** and **Django 6.1**, the current releases 
 Each lesson has four kinds of blocks:
 
 - **Why this works** explains the rule underneath the syntax. This is where most tutorials skip, and where bugs come from.
+- **How it works** walks the lines you just saw: what each line does, and why that line is the one that produces the result. On a task, it sits inside the solution, so try the problem before you open it.
 - **Watch this** is a mistake that looks reasonable and is wrong.
 - **Try this** is work for you. Attempt it before you open the solution.
 - A **quiz** checks one idea. The point is the reason, not the score.

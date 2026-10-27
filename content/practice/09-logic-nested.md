@@ -23,6 +23,10 @@ print(has_pair_sum([2, 7, 11], 9))
 print(has_pair_sum([1, 2, 3], 10))
 ```
 
+:::how
+The outer loop picks one item and remembers its index with `enumerate`. The inner loop starts at `i + 1`, so an item is not paired with itself and earlier pairs are not repeated. `left + right == target` is the test. The first success returns `True`. If both loops finish, no pair worked and the answer is `False`. This tries every remaining pair. That is correct, and it is the slow version of the question.
+:::
+
 `nums[i + 1:]` skips the item itself and the pairs already checked. That is the logic. The inner loop is still a scan.
 
 ## One pass with a set
@@ -40,6 +44,10 @@ def has_pair_sum_fast(nums, target):
 
 print(has_pair_sum_fast([2, 7, 11], 9))
 ```
+
+:::how
+`seen` holds numbers already passed. For each `num`, `target - num` is the partner that would finish the pair. The lookup happens before `add`. On `[2, 7]` with target 9, 2 is stored, then 7 finds 2 and returns. Adding first would put the current number in the set before the test, so a single 4 would look like a pair for target 8.
+:::
 
 Add the number **after** the test. If you add it first, a value can pair with itself. `target` 8 and a single `4` would look like a pair even though 4 appears once.
 

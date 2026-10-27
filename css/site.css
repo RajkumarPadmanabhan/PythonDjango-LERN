@@ -275,8 +275,9 @@ h1, h2, h3, h4 { font-family: var(--display); font-weight: 560; letter-spacing: 
 .callout .label { display: block; font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 0.25rem; font-weight: 650; }
 .callout.tip { background: var(--pine-soft); }
 .callout.tip .label { color: var(--pine-ink); }
-.callout.why { background: var(--indigo-soft); }
-.callout.why .label { color: var(--indigo); }
+.callout.why, .callout.how { background: var(--indigo-soft); }
+.callout.why .label, .callout.how .label { color: var(--indigo); }
+.callout.how { border-left: 4px solid var(--indigo); }
 .callout.watch, .callout.try { background: var(--copper-soft); }
 .callout.watch .label, .callout.try .label { color: var(--copper); }
 .callout.solution { background: var(--bg); }

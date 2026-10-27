@@ -28,6 +28,10 @@ def toggle(request, pk):
     return redirect("task-list")
 ```
 
+:::how
+The method test is first. Anything other than POST returns 405 and does not touch the row. `get_object_or_404` puts the primary key and the owner in one lookup. A miss raises 404 before `done` changes. `not task.done` flips the stored boolean. `update_fields` writes that column only. `redirect` sends the browser to the list with GET, so refresh does not toggle again. `@login_required` belongs on the function so "who is this?" is answered before line 1.
+:::
+
 Put `@login_required` on the view so question 1 is not a copy-paste inside every function. The owner lives in the lookup, so another user's id is a 404 rather than a toggle.
 
 ## What not to trust

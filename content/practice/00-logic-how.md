@@ -43,6 +43,10 @@ def is_leap(year):
 print(is_leap(2024), is_leap(1900), is_leap(2000))
 ```
 
+:::how
+Each `if` is one sentence from the rule, in the same order. `year % 400 == 0` is true for 2000, so the function returns `True` and the later lines do not run. 1900 fails that test, matches `% 100`, and returns `False` even though 1900 is divisible by 4. 2024 fails both special cases, so the last line runs: `2024 % 4 == 0` is `True`. The last line does not need an `if`. It is the remaining case.
+:::
+
 :::why
 `%` is the remainder. A remainder of 0 means the number divides evenly. Returning as soon as you know the answer is a decision that stops the rest of the tests. That is why 2000 never reaches the `% 4` line: it already returned on `% 400`.
 :::

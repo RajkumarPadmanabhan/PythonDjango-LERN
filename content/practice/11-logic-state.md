@@ -24,6 +24,10 @@ def running_max(nums):
 print(running_max([3, 1, 4, 2]))
 ```
 
+:::how
+`best` starts as `None` because no number has been seen, and 0 would be wrong for a list of negatives. The first number always replaces `None`. Later numbers replace `best` only when they are strictly greater. `history.append(best)` runs on every item, including the ones that did not win, so 1 and 2 still record the earlier max. The result `[3, 3, 4, 4]` is the memory after each step, not a sorted copy of the input.
+:::
+
 `best` is the memory. `history` is the list of what that memory was after each step. `[3, 3, 4, 4]` means "the max so far," not "the list sorted."
 
 ## A tiny machine
@@ -45,6 +49,10 @@ def word_count(text):
 print(word_count("ada  lovelace"))
 print(word_count("   "))
 ```
+
+:::how
+`in_word` starts false, meaning "between words." A space sets it false and does not touch `count`. A letter while `in_word` is false is the first letter of a word: add 1, then set the flag true. Further letters of the same word hit the `elif` as false, so they are not counted. `"ada  lovelace"` enters a word twice. A string of spaces never enters, so the count stays 0.
+:::
 
 You count only on the step that **enters** a word. Spaces only flip the flag off. Extra spaces do not create extra words.
 

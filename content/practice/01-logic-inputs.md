@@ -44,6 +44,10 @@ print(long_words(""))
 print(long_words("four five"))
 ```
 
+:::how
+`split()` with no argument cuts on whitespace and drops empty pieces, so `""` becomes `[]` and the loop body never runs. `kept` starts empty and is the answer for that case. For each word, `len(word) > 3` decides. `"a"` has length 1 and is not appended. `"cat"` and `"sat"` are. `return kept` hands the list back. Nothing is printed inside the function, so the three `print` calls are the examples from the table.
+:::
+
 :::why
 `split()` with no argument splits on any whitespace and drops empty pieces, so `""` becomes `[]` and the loop body never runs. Returning `kept` means the caller can test the function without looking at printed text.
 :::

@@ -33,6 +33,10 @@ print(report(" 49 "))
 print(report("50"))
 ```
 
+:::how
+`parse_score` strips first, so the spaces around 49 do not reach `int`. A blank string raises before `int`, with your message. `int` does the conversion and raises `ValueError` on a word. `passed` sees only an int and compares it with 50. `report` calls them in the order of the sentence: parse, then decide, then build the text. `passed` does not know about strings. `parse_score` does not know about pass marks.
+:::
+
 `report` reads like the sentence. `parse_score` does not know about pass marks. `passed` does not know about text.
 
 :::why
@@ -69,6 +73,10 @@ print(report("49"))
 print(report("nope"))
 print(report("  "))
 ```
+
+:::how
+`try` runs the parse. `int("nope")` and a blank both raise `ValueError`, so one handler turns both into `"not a number"`. `passed` is not inside the `try`. It runs only after a real score exists. A pass still returns the pass string. A fail returns the fail string. The blank message and the `int` message are both `ValueError`, which is why they share this handler. Catch the blank before calling `int` if those two cases should say different things.
+:::
 
 `parse_score("")` raises your blank message, which is also a `ValueError`, so blanks and words both become `"not a number"` with this handler. If blanks should say something else, catch them before calling `int`.
 :::

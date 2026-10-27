@@ -199,11 +199,23 @@
         const kind = line.slice(3).trim().toLowerCase();
         const body = [];
         i += 1;
-        while (i < lines.length && lines[i].trim() !== ":::") {
-          body.push(lines[i]);
+        let depth = 1;
+        while (i < lines.length && depth > 0) {
+          const current = lines[i];
+          if (current.trim() === ":::") {
+            depth -= 1;
+            if (depth === 0) {
+              i += 1;
+              break;
+            }
+            body.push(current);
+            i += 1;
+            continue;
+          }
+          if (current.startsWith(":::")) depth += 1;
+          body.push(current);
           i += 1;
         }
-        i += 1;
         blocks.push(kind === "quiz" ? quizBlock(body) : callout(kind, body.join("\n")));
         continue;
       }
@@ -277,6 +289,7 @@
     const labels = {
       tip: "Tip",
       why: "Why this works",
+      how: "How it works",
       watch: "Watch this",
       try: "Try this",
       solution: "Solution",

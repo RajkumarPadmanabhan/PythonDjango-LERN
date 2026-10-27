@@ -36,6 +36,10 @@ print(evens([1, 2, 3, 4]))
 print(first_even([1, 2, 3, 4]))
 ```
 
+:::how
+`evens` is a keep. `kept` starts as `[]`. The `if` appends only even numbers, and the loop always finishes, so both 2 and 4 are in the result. `first_even` is a find. The same test returns on the first success, which is 2, and 4 is never visited. If the loop finishes with no return, `None` says the find failed. Returning 0 there would be wrong, because 0 can be a real even number.
+:::
+
 `evens` is a keep. `first_even` is a find. Mixing them — appending and also returning inside the same loop — usually means you have not chosen the job.
 
 :::why

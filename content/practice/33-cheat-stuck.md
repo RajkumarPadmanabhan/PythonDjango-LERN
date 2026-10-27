@@ -13,6 +13,10 @@ Use this page in order. Stop at the first check that you cannot answer.
 
 ## It will not run
 
+:::how
+Python prints the traceback with the newest call at the bottom. The last line is the exception type and the message. Above it, each line is a file and a line number. Walk up from the bottom until you find a file you wrote. That line ran. The lines inside site-packages are the library noticing the problem, not the place to edit first.
+:::
+
 1. Read the **last** line of the traceback. That is the exception type and the message.
 2. Find the last file that is yours. Lines inside site-packages are the library noticing your mistake.
 3. Match the type:

@@ -32,6 +32,10 @@ def max_or_none(nums):
 print(max_or_none([]), max_or_none([4]), max_or_none([3, 3, 1]))
 ```
 
+:::how
+The empty check returns `None` before `nums[0]`, which would raise `IndexError` on `[]`. `best` then starts as the first item, not as 0. Starting at 0 would make `[-5, -1]` return 0, and 0 is not in that list. The loop walks the rest of the list. A strictly greater number replaces `best`. An equal number does not. One item never enters `nums[1:]`, so the first item is the max.
+:::
+
 Starting `best` at 0 is wrong for a list of negatives: `[-5, -1]` would return 0, which is not in the list. Starting at the first item fixes that, and the empty check happens before you touch index 0.
 
 :::why

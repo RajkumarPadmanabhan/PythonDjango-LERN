@@ -30,6 +30,10 @@ def counts(text):
 print(counts("Ada, ada"))
 ```
 
+:::how
+`casefold()` folds `A` and `a` into one key. The comma and the space fail `isalpha()`, and `continue` jumps to the next character so they never become keys. `get(ch, 0)` is 0 the first time a letter appears, then the stored count after that. Adding 1 and writing it back is the update. A list of letters would make you scan from the start for every character. The dict answers "what is the count for this letter?" directly.
+:::
+
 `get(ch, 0)` is the logic "zero if this letter is new." Then add one. A list of letters would make you scan the whole list for every character.
 
 :::why
@@ -53,3 +57,7 @@ def unique_in_order(items):
 
 print(unique_in_order(["b", "a", "b", "c", "a"]))
 ```
+
+:::how
+`seen` is only the membership test. `ordered` is the answer, because a set does not promise order. `continue` skips a repeat before `append`. A new item is recorded in both: the set so the next copy is recognized, the list so the first position is kept. `b` is kept once, at the front.
+:::

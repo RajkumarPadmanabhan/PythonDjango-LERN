@@ -29,6 +29,10 @@ print(is_palindrome("A man, a plan, a canal: Panama"))
 print(is_palindrome("nope"))
 ```
 
+:::how
+The comprehension builds a list of letters and digits, folded to one case. `left` starts at the first index. `right` starts at `len(chars) - 1`, the last valid index. `len(chars)` itself is one past the end and would raise `IndexError`. While `left < right`, the two positions are compared. A mismatch returns `False` immediately. A match moves both indexes inward. They stop when they meet, so a middle character is not compared with itself. If the loop finishes, every pair matched.
+:::
+
 `left < right` stops when the indexes meet or cross. A middle character in an odd-length list is never compared with itself, which is fine: it matches itself.
 
 :::why

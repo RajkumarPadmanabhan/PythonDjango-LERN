@@ -21,6 +21,10 @@ def total(nums):
 print(total([4, 1, 7]))
 ```
 
+:::how
+`result = 0` is the sum before any number is seen. The `for` takes one item at a time into `num`. `result = result + num` reads the old total, adds the item, and stores the new total under the same name. After 4, 1, and 7 the name holds 12. `return` sends that number out. The list is not modified.
+:::
+
 | step | num | result |
 | --- | --- | --- |
 | start |  | 0 |
@@ -42,6 +46,10 @@ def count_up(n):
 
 count_up(3)
 ```
+
+:::how
+`i` starts at 1, which is the first number you want to print. The `while` checks `i <= n` before the body. For `n` of 3 the body runs at 1, 2, and 3. `i = i + 1` is what moves the name forward. Without it, `i` would stay 1 and the condition would stay true. When `i` becomes 4, `4 <= 3` is false and the loop stops.
+:::
 
 `i <= n` prints 1, 2, 3. `i < n` would stop before 3. `range(1, n)` also stops before `n`, because the stop value is excluded. `range(1, n + 1)` matches the `while` above.
 

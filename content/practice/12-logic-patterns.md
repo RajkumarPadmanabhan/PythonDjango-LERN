@@ -31,6 +31,10 @@ def most_common(items):
 print(most_common(["a", "b", "a", "c", "a", "b"]))
 ```
 
+:::how
+The first loop only counts. `get(item, 0) + 1` is "zero if new, otherwise the old count, plus one." The second loop looks for the largest count. `best_count` starts at `-1` so the first real count, even 0, can win. `>` keeps the first item when two counts are equal, because an equal count does not replace `best_item`.
+:::
+
 Ties keep the first winner, because `>` does not replace an equal count.
 
 ## Two indexes, only if the data is sorted
@@ -51,6 +55,10 @@ def pair_sorted(nums, target):
 
 print(pair_sorted([1, 2, 4, 7, 11], 13))
 ```
+
+:::how
+`left` and `right` are indexes, not the values. The sum of the values at those ends is compared with the target. Too small means the left value must grow, and in a sorted list the way to grow it is `left += 1`. Too big means the right value must shrink, so `right -= 1`. A match returns the two values. `left < right` stops when the indexes meet, so a value is not paired with itself. None of those moves is valid if the list is unsorted, because moving right would not reliably shrink the sum.
+:::
 
 Moving `left` up increases the sum. Moving `right` down decreases it. That story is false if the list is not sorted.
 
@@ -73,6 +81,10 @@ def max_window(nums, k):
 print(max_window([2, 1, 5, 1, 3], 2))
 ```
 
+:::how
+The guard rejects a window that cannot exist. `sum(nums[:k])` is the first window, and `best` starts there because it is a candidate. The loop begins at index `k`, the first item not in that window. `nums[i]` enters. `nums[i - k]` is the item that just slid out. Subtracting it and adding the new one updates the sum without recounting. `>` replaces `best` only for a strictly larger window.
+:::
+
 ## Stack
 
 "Does this closer match the most recent opener?" is a stack. The most recent unmatched opener is the last item you append.
@@ -91,6 +103,10 @@ def balanced(text):
 
 print(balanced("([])"), balanced("([)]"), balanced("("))
 ```
+
+:::how
+Openers are appended. The last item in `stack` is the opener that is still waiting. A closer looks up the opener it requires in `pairs`, then `pop()` removes the most recent opener and compares. Both the empty-stack check and the mismatch return `False`. `([)]` pops `[` when it sees `)`, and those are not a pair. After the loop, `not stack` is true only when every opener was closed. `"("` leaves one item, so it is false.
+:::
 
 :::why
 `([)]` fails because the most recent opener is `[`, and the next closer is `)`. A counter of "how many open" cannot see that mismatch. The stack remembers the order.

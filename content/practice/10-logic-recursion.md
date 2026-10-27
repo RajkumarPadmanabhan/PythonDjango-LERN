@@ -23,6 +23,10 @@ def total(nums):
 print(total([4, 1, 7]))
 ```
 
+:::how
+The empty list is the base case: the sum of nothing is 0, and the function does not call itself. Otherwise the answer is the first item plus the sum of the rest. `nums[1:]` is that smaller list. `total([4, 1, 7])` waits for `total([1, 7])`, which waits for `total([7])`, which waits for `total([])`. The 0 comes back, then the additions finish on the way out: 7, then 8, then 12.
+:::
+
 `total([4, 1, 7])` is `4 + total([1, 7])`. That is `4 + 1 + total([7])`. That is `4 + 1 + 7 + total([])`. The empty list returns 0 and the additions finish on the way back.
 
 The same job as a loop is usually clearer:
@@ -34,6 +38,10 @@ def total_loop(nums):
         result += num
     return result
 ```
+
+:::how
+This is the same job without waiting calls. `result` starts at 0. Each item is added in place. There is no smaller copy of the list and no stack of calls. For a flat list this is the version to write. Recursion earns its place when the data itself has children, such as folders or replies.
+:::
 
 Use recursion when the data is naturally nested, such as a tree of folders or comments that have replies. Use a loop for a flat list.
 
