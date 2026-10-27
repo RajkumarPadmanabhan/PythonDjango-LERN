@@ -60,7 +60,17 @@
   function inline(raw) {
     let text = esc(raw);
     text = text.replace(/`([^`]+)`/g, "<code>$1</code>");
-    text = text.replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+    text = text.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (match, label, href) => {
+      if (/^https?:\/\//i.test(href)) {
+        return `<a href="${href}" target="_blank" rel="noopener">${label}</a>`;
+      }
+      if (href.startsWith("#/")) return `<a href="${href}">${label}</a>`;
+      return match;
+    });
+    text = text.replace(/(^|[^"'>=])(https?:\/\/[^\s<]+)/g, (match, before, url) => {
+      const clean = url.replace(/[),.;:]+$/g, "");
+      return `${before}<a href="${clean}" target="_blank" rel="noopener">${clean}</a>${url.slice(clean.length)}`;
+    });
     text = text.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
     text = text.replace(/(^|[^*])\*([^*\n]+)\*/g, "$1<em>$2</em>");
     return text;
@@ -329,12 +339,23 @@
       .join("")}</tbody></table>`;
   }
 
+  function frameSource(frame) {
+    return [...frame.querySelectorAll(".code-line code")].map((el) => el.textContent).join("\n");
+  }
+
   function codeBlock(code, lang) {
     const runnable = lang === "python";
     const label = { python: "Python", py: "Python", pycon: "REPL", django: "Django template", html: "HTML", bash: "Shell", powershell: "PowerShell", text: "Text", json: "JSON", ini: "Config" }[lang] || lang;
-    return `<div class="frame"><div class="frame-bar"><span>${esc(label)}</span><span class="frame-actions">${
+    const lines = code.replace(/\n$/, "").split("\n");
+    const rows = lines
+      .map((line, index) => {
+        const shown = highlight(line, lang);
+        return `<div class="code-line"><button type="button" class="ln" data-mask-line aria-label="Mask line ${index + 1}" aria-pressed="false">${index + 1}</button><code>${shown}</code></div>`;
+      })
+      .join("");
+    return `<div class="frame"><div class="frame-bar"><span>${esc(label)}</span><span class="frame-actions"><button type="button" data-mask>Mask</button>${
       runnable ? '<button type="button" data-run>Run</button>' : ""
-    }<button type="button" data-copy>Copy</button></span></div><pre><code data-lang="${esc(lang)}">${highlight(code, lang)}</code></pre></div>`;
+    }<button type="button" data-copy>Copy</button></span></div><div class="code-rows" data-lang="${esc(lang)}">${rows}</div></div>`;
   }
 
   function groupsFor(track) {
@@ -458,6 +479,19 @@
         <article class="card"><h3>3. Build the projects</h3><p>The Projects track is a ladder: guessing games, then files and tests, then Django sites, then a team app with an API and a deploy checklist. Finished Python programs live in <code>labs/projects</code>.</p></article>
         <article class="card"><h3>4. Practice the logic</h3><p>The Practice track teaches how to turn a sentence into steps, then gives tasks with solutions and cheat-code pages for the shapes you look up while you work.</p></article>
       </section>
+      <h2 class="section-title">Other links</h2>
+      <section class="grid-2">
+        <article class="card">
+          <h3>Official docs</h3>
+          <p><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">Python tutorial</a> · <a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Python library</a> · <a href="https://docs.python.org/3/reference/" target="_blank" rel="noopener">Python language reference</a></p>
+          <p><a href="https://docs.djangoproject.com/en/stable/intro/tutorial01/" target="_blank" rel="noopener">Django tutorial</a> · <a href="https://docs.djangoproject.com/en/stable/topics/" target="_blank" rel="noopener">Django topics</a> · <a href="https://docs.djangoproject.com/en/stable/ref/" target="_blank" rel="noopener">Django reference</a></p>
+        </article>
+        <article class="card">
+          <h3>Inside this course</h3>
+          <p><a href="#/lesson/logic-how">How logic is built</a> · <a href="#/lesson/tasks-decisions">Tasks</a> · <a href="#/lesson/cheat-python">Python cheat codes</a> · <a href="#/lesson/cheat-django">Django cheat codes</a> · <a href="#/lesson/cheat-stuck">When you are stuck</a></p>
+          <p>A lesson can also link any other https address, or another lesson with <code>#/lesson/the-id</code>.</p>
+        </article>
+      </section>
       <h2 class="section-title">How the course is covered</h2>
       <section class="grid-2">
         <article class="card">
@@ -536,7 +570,7 @@
 
   async function runCode(button) {
     const frame = button.closest(".frame");
-    const code = frame.querySelector("code").textContent;
+    const code = frameSource(frame);
     button.disabled = true;
     button.textContent = "Loading…";
     let panel = frame.querySelector(".run-out");
@@ -603,9 +637,30 @@
     }
   });
   stage.addEventListener("click", async (event) => {
+    const maskLine = event.target.closest("[data-mask-line]");
+    if (maskLine) {
+      const row = maskLine.closest(".code-line");
+      const masked = row.classList.toggle("masked");
+      maskLine.setAttribute("aria-pressed", String(masked));
+      maskLine.setAttribute("aria-label", `${masked ? "Show" : "Mask"} line ${maskLine.textContent}`);
+      return;
+    }
+    const maskAll = event.target.closest("[data-mask]");
+    if (maskAll) {
+      const rows = [...maskAll.closest(".frame").querySelectorAll(".code-line")];
+      const hide = rows.some((row) => !row.classList.contains("masked"));
+      rows.forEach((row) => {
+        row.classList.toggle("masked", hide);
+        const button = row.querySelector("[data-mask-line]");
+        button.setAttribute("aria-pressed", String(hide));
+        button.setAttribute("aria-label", `${hide ? "Show" : "Mask"} line ${button.textContent}`);
+      });
+      maskAll.textContent = hide ? "Show" : "Mask";
+      return;
+    }
     const copy = event.target.closest("[data-copy]");
     if (copy) {
-      const text = copy.closest(".frame").querySelector("code").textContent;
+      const text = frameSource(copy.closest(".frame"));
       await navigator.clipboard.writeText(text);
       copy.textContent = "Copied";
       setTimeout(() => { copy.textContent = "Copy"; }, 1200);

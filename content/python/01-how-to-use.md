@@ -29,6 +29,10 @@ Each lesson has four kinds of blocks:
 
 A code block labeled **Python** has a **Run** button. It executes in your browser with [Pyodide](https://pyodide.org/). The first run downloads the runner. The browser runner is a recent Python, but it is not always 3.15, so `lazy import`, `frozendict`, and `sentinel` should be run on your own install. Django code never runs in the browser. You type that into the lab project.
 
+Every code block numbers its lines. Click a number to mask that line, or click **Mask** to hide the whole block. Click again to show it. Copy and Run still use the real code, including lines you have masked.
+
+A lesson can point at any other web page, or at another lesson. The [Python tutorial](https://docs.python.org/3/tutorial/) and the [Django tutorial](https://docs.djangoproject.com/en/stable/intro/tutorial01/) stay the official versions. [How logic is built](#/lesson/logic-how) is the first practice lesson on this site.
+
 ## A way to study that works
 
 1. Read one lesson.
